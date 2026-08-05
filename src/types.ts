@@ -124,9 +124,27 @@ export type SectionType =
   | 'cta'
   | 'statistics'
   | 'review'
+  | 'features'
+  | 'video'
+  | 'custom-block'
   | 'custom-html'
   | 'divider'
   | 'spacer';
+
+export interface CMSSectionButton {
+  id: string;
+  label: string;
+  url: string;
+  variant?: 'primary' | 'secondary' | 'outline' | 'whatsapp';
+  target?: '_blank' | '_self';
+}
+
+export interface CMSSectionImage {
+  id: string;
+  url: string;
+  alt?: string;
+  caption?: string;
+}
 
 export interface CMSSection {
   id: string;
@@ -136,14 +154,39 @@ export interface CMSSection {
   description?: string;
   ctaText?: string;
   ctaUrl?: string;
+  buttons?: CMSSectionButton[];
+  images?: CMSSectionImage[];
+  icon?: string;
   bgImage?: string;
   bgColor?: string;
+  bgOverlayOpacity?: number;
+  visibility?: 'all' | 'desktop' | 'mobile';
+  animation?: 'none' | 'fade' | 'slide' | 'zoom';
   spacing?: 'none' | 'small' | 'medium' | 'large';
   order: number;
   show: boolean;
   status: PublishStatus;
   scheduledAt?: string;
+  seoNotes?: string;
   customData?: Record<string, any>;
+}
+
+export interface VersionSnapshot {
+  id: string;
+  pageId: string;
+  timestamp: string;
+  author?: string;
+  note?: string;
+  sections: CMSSection[];
+}
+
+export interface ReusableTemplate {
+  id: string;
+  name: string;
+  category: string;
+  description?: string;
+  section: CMSSection;
+  createdAt: string;
 }
 
 export interface HomepageConfig {

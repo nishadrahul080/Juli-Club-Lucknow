@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Search, ShieldCheck, Menu, X, Mail, ChevronDown, MapPin } from 'lucide-react';
 import { LOCATION_PAGES } from '../data/locationData';
 import { WhatsAppIcon } from './WhatsAppIcon';
+import { useCMS } from '../context/CMSContext';
 
 interface NavbarProps {
   selectedCity: string;
@@ -24,8 +25,15 @@ export const Navbar: React.FC<NavbarProps> = ({
   onNavigateLocation,
   currentSlug,
 }) => {
+  const { cmsData } = useCMS();
+  const settings = cmsData.settings;
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
+
+  const whatsappLink = `https://wa.me/${settings.whatsappNumber || '918726179837'}?text=${encodeURIComponent(
+    settings.whatsappMessage || 'Hi Juli Club, I want to book a Call Girl Service Lucknow with Cash on Delivery.'
+  )}`;
 
   const navLinkClass = (isActive: boolean) =>
     `relative py-1 font-medium text-xs tracking-wider uppercase transition-all duration-300 whitespace-nowrap cursor-pointer hover:text-[#c5a059] hover:-translate-y-0.5 transform after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-[2px] after:bg-[#c5a059] hover:after:w-full after:transition-all after:duration-300 ${
@@ -35,21 +43,23 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-50 bg-[#0f0f0f]/95 backdrop-blur-md border-b border-white/10 text-[#e0e0e0]">
       {/* Top Bar Announcement */}
-      <div className="bg-[#0a0a0a] text-xs py-2 px-4 border-b border-white/10">
+      <div className="bg-[#0a0a0a] text-xs py-1.5 px-4 border-b border-white/10">
         <div className="flex items-center justify-between max-w-7xl mx-auto w-full gap-4">
           <span className="flex items-center gap-2 text-xs truncate">
             <ShieldCheck className="w-3.5 h-3.5 text-[#c5a059] shrink-0" />
             <strong className="text-[#c5a059] font-medium tracking-wide">100% Genuine Profiles:</strong>
-            <span className="opacity-80 truncate hidden sm:inline">No Advance Payment • Cash on Delivery (COD) • Free Pickup & Drop</span>
+            <span className="opacity-80 truncate hidden sm:inline">
+              {settings.announcementText || 'No Advance Payment • Cash on Delivery (COD) • Free Pickup & Drop'}
+            </span>
             <span className="opacity-80 truncate sm:hidden">0 Advance • Cash on Delivery</span>
           </span>
           <div className="hidden md:flex items-center gap-6 text-xs shrink-0">
             <a
-              href="mailto:ramanarora7869@gmail.com"
+              href={`mailto:${settings.contactEmail || 'ramanarora7869@gmail.com'}`}
               className="flex items-center gap-1.5 text-xs opacity-70 hover:opacity-100 hover:text-[#c5a059] transition-colors"
             >
               <Mail className="w-3.5 h-3.5 text-[#c5a059]" />
-              ramanarora7869@gmail.com
+              {settings.contactEmail || 'ramanarora7869@gmail.com'}
             </a>
             <span className="opacity-20">|</span>
             <span className="flex items-center gap-1.5 text-xs text-emerald-400 font-medium">
@@ -60,30 +70,34 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-        <div className="flex items-center justify-between gap-4 md:gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
+        <div className="flex items-center justify-between gap-3 lg:gap-5 xl:gap-6">
           {/* Logo & Brand */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2.5 shrink-0">
             <button
               onClick={onNavigateHome}
               className="flex items-center gap-2.5 group text-left focus:outline-none"
             >
-              <div className="w-9 h-9 bg-gradient-to-br from-[#c5a059] to-[#8c6b32] rounded-full flex items-center justify-center text-black font-bold text-lg shadow-lg shadow-[#c5a059]/10 group-hover:scale-105 transition-transform">
-                J
-              </div>
-              <div className="leading-none">
-                <span className="text-lg font-serif tracking-widest text-[#c5a059] uppercase block font-bold">
-                  JULI CLUB
+              {settings.logoUrl ? (
+                <img src={settings.logoUrl} alt={settings.brandName || 'Juli Club'} className="h-8 w-auto object-contain" />
+              ) : (
+                <div className="w-8 h-8 bg-gradient-to-br from-[#c5a059] to-[#8c6b32] rounded-full flex items-center justify-center text-black font-bold text-base shadow-lg shadow-[#c5a059]/10 group-hover:scale-105 transition-transform shrink-0">
+                  {(settings.brandName || 'J')[0]}
+                </div>
+              )}
+              <div className="leading-tight">
+                <span className="text-base sm:text-lg font-serif tracking-widest text-[#c5a059] uppercase block font-bold leading-none">
+                  {settings.logoText && settings.logoText !== 'JULI CLUB LUCKNOW' ? settings.logoText : 'JULI CLUB'}
                 </span>
-                <span className="text-[9px] uppercase tracking-wider opacity-60 block mt-0.5">
-                  Call Girl Service Lucknow
+                <span className="text-[9px] sm:text-[10px] uppercase tracking-wider opacity-70 block mt-0.5 font-medium whitespace-nowrap">
+                  {settings.websiteTagline && !settings.websiteTagline.includes('Premier VIP') ? settings.websiteTagline : 'CALL GIRL SERVICE LUCKNOW'}
                 </span>
               </div>
             </button>
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-6 xl:gap-7 font-medium tracking-wider text-xs uppercase whitespace-nowrap">
+          <nav className="hidden lg:flex items-center gap-4 xl:gap-6 font-medium tracking-wider text-xs uppercase whitespace-nowrap">
             <button onClick={onNavigateHome} className={navLinkClass(!currentSlug)}>
               Home
             </button>
@@ -172,7 +186,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Search Input (Desktop) */}
-          <div className="hidden xl:flex items-center max-w-[210px] w-full shrink-0">
+          <div className="hidden lg:flex xl:flex items-center max-w-[170px] xl:max-w-[210px] w-full shrink-0">
             <div className="relative w-full">
               <Search className="w-3.5 h-3.5 text-white/40 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -188,10 +202,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Single Primary CTA Button: WhatsApp */}
           <div className="hidden sm:flex items-center shrink-0">
             <a
-              href="https://wa.me/918726179837?text=Hi%20Juli%20Club%2C%20I%20want%20to%20book%20a%20Call%20Girl%20Service%20Lucknow%20with%20Cash%20on%20Delivery."
+              href={whatsappLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-6 py-2.5 bg-[#25D366] hover:bg-[#22c35e] text-white rounded-md text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.03] shadow-md shadow-green-950/40 hover:shadow-[0_0_20px_rgba(37,211,102,0.4)] border border-emerald-400/30 shrink-0 cursor-pointer"
+              className="px-4 py-2 sm:px-5 sm:py-2.5 bg-[#25D366] hover:bg-[#22c35e] text-white rounded-md text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.02] shadow-md shadow-green-950/40 hover:shadow-[0_0_20px_rgba(37,211,102,0.4)] border border-emerald-400/30 shrink-0 cursor-pointer whitespace-nowrap"
             >
               <WhatsAppIcon className="w-4 h-4 fill-current shrink-0" />
               <span>WhatsApp Us</span>
@@ -261,13 +275,13 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <div className="pt-1">
               <a
-                href="https://wa.me/918726179837?text=Hi%20Juli%20Club%2C%20I%20want%20to%20book%20a%20Call%20Girl%20Service%20Lucknow%20with%20Cash%20on%20Delivery."
+                href={whatsappLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2.5 py-3 bg-[#25D366] hover:bg-[#22c35e] text-white rounded-md text-xs font-bold uppercase tracking-wider shadow-lg shadow-green-950/40 active:scale-95 transition-all"
               >
                 <WhatsAppIcon className="w-4 h-4 fill-current shrink-0" />
-                <span>WhatsApp Us Directly</span>
+                <span>{settings.headerCtaText || 'WhatsApp Us Directly'}</span>
               </a>
             </div>
           </div>

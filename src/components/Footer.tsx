@@ -2,12 +2,33 @@ import React from 'react';
 import { SERVICE_TAGS } from '../data/mockData';
 import { Phone, ShieldCheck, Sparkles, MapPin } from 'lucide-react';
 import { WhatsAppIcon } from './WhatsAppIcon';
+import { useCMS } from '../context/CMSContext';
 
 interface FooterProps {
   onOpenBooking: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({ onOpenBooking }) => {
+  const { cmsData } = useCMS();
+  const settings = cmsData.settings;
+
+  const quickLinks = Array.isArray(settings.footerQuickLinks)
+    ? settings.footerQuickLinks
+    : typeof settings.footerQuickLinks === 'string'
+    ? (() => {
+        try {
+          const parsed = JSON.parse(settings.footerQuickLinks);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      })()
+    : [];
+
+  const whatsappLink = `https://wa.me/${settings.whatsappNumber || '918726179837'}?text=${encodeURIComponent(
+    settings.whatsappMessage || 'Hi Juli Club, I want to book a Call Girl Service Lucknow with Cash on Delivery.'
+  )}`;
+
   return (
     <footer className="bg-[#0a0a0a] text-white/70 border-t border-white/10 pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
@@ -24,7 +45,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenBooking }) => {
 
           <div className="flex items-center gap-3">
             <a
-              href="https://wa.me/918726179837?text=Hi%20Juli%20Club%2C%20I%20want%20to%20book%20a%20Call%20Girl%20Service%20Lucknow%20with%20Cash%20on%20Delivery."
+              href={whatsappLink}
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2.5 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold rounded-sm text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-lg"
@@ -64,13 +85,18 @@ export const Footer: React.FC<FooterProps> = ({ onOpenBooking }) => {
           {/* Col 1: Brand Info */}
           <div className="space-y-3 md:col-span-1">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-sm bg-[#c5a059] flex items-center justify-center text-black font-bold">
-                J
-              </div>
-              <span className="font-serif text-lg text-[#e0e0e0]">JULI CLUB LUCKNOW</span>
+              {settings.footerLogoUrl ? (
+                <img src={settings.footerLogoUrl} alt={settings.brandName || 'Juli Club'} className="h-8 w-auto object-contain" />
+              ) : (
+                <div className="w-8 h-8 rounded-sm bg-[#c5a059] flex items-center justify-center text-black font-bold">
+                  {(settings.brandName || 'J')[0]}
+                </div>
+              )}
+              <span className="font-serif text-lg text-[#e0e0e0]">{settings.logoText || 'JULI CLUB LUCKNOW'}</span>
             </div>
             <p className="text-white/50 leading-relaxed text-[11px]">
-              Exclusive Independent Lucknow Call Girl Service offering verified companion profiles, 5-star hotel outcalls, body-to-body massages, and romantic dates in Lucknow.
+              {settings.footerDescription ||
+                'Exclusive Independent Lucknow Call Girl Service offering verified companion profiles, 5-star hotel outcalls, body-to-body massages, and romantic dates in Lucknow.'}
             </p>
             <div className="text-[11px] text-[#c5a059] font-medium tracking-wide">
               100% Cash On Delivery • 0 Advance Payment
@@ -94,13 +120,23 @@ export const Footer: React.FC<FooterProps> = ({ onOpenBooking }) => {
           <div className="space-y-2">
             <h4 className="text-[10px] font-bold text-[#e0e0e0] uppercase tracking-[0.2em]">Site Navigation</h4>
             <ul className="space-y-1.5 text-white/50 text-[11px]">
-              <li className="hover:text-[#c5a059] cursor-pointer">Home</li>
-              <li className="hover:text-[#c5a059] cursor-pointer">Rate Chart With Name & Number</li>
-              <li className="hover:text-[#c5a059] cursor-pointer">Independent Lucknow Escorts</li>
-              <li className="hover:text-[#c5a059] cursor-pointer">Russian Escort Agency</li>
-              <li className="hover:text-[#c5a059] cursor-pointer">Privacy Policy</li>
-              <li className="hover:text-[#c5a059] cursor-pointer">Terms and Conditions</li>
-              <li className="hover:text-[#c5a059] cursor-pointer">About Us</li>
+              {quickLinks.length > 0 ? (
+                quickLinks.map((link) => (
+                  <li key={link.id} className="hover:text-[#c5a059] cursor-pointer">
+                    <a href={link.url}>{link.label}</a>
+                  </li>
+                ))
+              ) : (
+                <>
+                  <li className="hover:text-[#c5a059] cursor-pointer">Home</li>
+                  <li className="hover:text-[#c5a059] cursor-pointer">Rate Chart With Name & Number</li>
+                  <li className="hover:text-[#c5a059] cursor-pointer">Independent Lucknow Escorts</li>
+                  <li className="hover:text-[#c5a059] cursor-pointer">Russian Escort Agency</li>
+                  <li className="hover:text-[#c5a059] cursor-pointer">Privacy Policy</li>
+                  <li className="hover:text-[#c5a059] cursor-pointer">Terms and Conditions</li>
+                  <li className="hover:text-[#c5a059] cursor-pointer">About Us</li>
+                </>
+              )}
             </ul>
           </div>
         </div>
@@ -108,10 +144,11 @@ export const Footer: React.FC<FooterProps> = ({ onOpenBooking }) => {
         {/* Legal Disclaimer & Copyright */}
         <div className="border-t border-white/5 pt-6 text-center text-[10px] text-white/40 font-sans space-y-2">
           <p>
-            Disclaimer: This site is intended solely for consenting adults over 18 years of age. All companion profiles are independent contractors. All meetings are 100% voluntary with total privacy and cash on delivery payment.
+            {settings.disclaimerText ||
+              'Disclaimer: This site is intended solely for consenting adults over 18 years of age. All companion profiles are independent contractors. All meetings are 100% voluntary with total privacy and cash on delivery payment.'}
           </p>
           <p className="text-white/60 font-medium flex flex-wrap items-center justify-center gap-2">
-            <span>© 2026 Juli Club - Call Girl Service Lucknow. All Rights Reserved.</span>
+            <span>{settings.copyrightText || '© 2026 Juli Club - Call Girl Service Lucknow. All Rights Reserved.'}</span>
           </p>
         </div>
       </div>

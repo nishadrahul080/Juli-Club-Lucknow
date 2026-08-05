@@ -336,7 +336,11 @@ function MainApp() {
 
             {/* Render CMS Sections if provided */}
             {cmsData.homepage?.sections && cmsData.homepage.sections.length > 0 && (
-              <PublicSectionRenderer sections={cmsData.homepage.sections} profiles={filteredProfiles} />
+              <PublicSectionRenderer
+                sections={cmsData.homepage.sections}
+                profiles={filteredProfiles}
+                excludeTypes={['hero', 'faq', 'cards', 'review']}
+              />
             )}
 
             {/* Lucknow Coverage Map Grid */}

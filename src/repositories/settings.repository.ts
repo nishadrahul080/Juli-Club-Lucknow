@@ -24,9 +24,17 @@ export class SettingsRepository extends BaseRepository<SiteSettingRow, SiteSetti
 
   public async getSettings(): Promise<SiteSettings> {
     const rows = this.getRecords();
-    const map: Record<string, string> = {};
+    const map: Record<string, any> = {};
     rows.forEach(r => {
-      map[r.setting_key] = r.setting_value;
+      let val: any = r.setting_value;
+      if (typeof val === 'string' && (val.startsWith('{') || val.startsWith('['))) {
+        try {
+          val = JSON.parse(val);
+        } catch {
+          // ignore parse error and leave as string
+        }
+      }
+      map[r.setting_key] = val;
     });
 
     return {

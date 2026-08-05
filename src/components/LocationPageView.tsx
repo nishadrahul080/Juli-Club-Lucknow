@@ -161,7 +161,11 @@ export const LocationPageView: React.FC<LocationPageViewProps> = ({
 
       {/* Custom CMS-managed sections for this location */}
       {locationData.customSections && locationData.customSections.length > 0 && (
-        <PublicSectionRenderer sections={locationData.customSections} profiles={areaProfiles} />
+        <PublicSectionRenderer
+          sections={locationData.customSections}
+          profiles={areaProfiles}
+          excludeTypes={['hero', 'faq', 'cards', 'review']}
+        />
       )}
 
       {/* Comprehensive SEO Content Section */}
