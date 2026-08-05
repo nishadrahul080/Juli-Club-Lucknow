@@ -26,28 +26,56 @@ export type LucknowArea =
 export interface CompanionProfile {
   id: string;
   name: string;
+  slug?: string;
+  nickName?: string;
   title: string;
   category: CategoryType;
   age: number;
   height: string;
-  figure: string;
+  weight?: string;
+  bodyType?: string;
+  figure: string; // measurements e.g. "34B-26-36"
+  rate1Hour?: number;
   rateShort: number; // ₹ Short time (2 hours)
   rateFull: number;  // ₹ Full night (8 hours)
+  incall?: boolean;
+  outcall?: boolean;
   location: LucknowArea;
   city: string;
   phone: string;
   whatsapp: string;
+  telegram?: string;
   verified: boolean;
   pickupDropFree: boolean;
   noAdvanceCashOnDelivery: boolean;
   image: string;
   gallery: string[];
+  shortIntro?: string;
   bio: string;
   services: string[];
+  specialities?: string[];
+  expectations?: string;
+  rules?: string;
   rating: number;
   reviewsCount: number;
   isOnline: boolean;
   languages: string[];
+  nationality?: string;
+  profession?: string;
+  experience?: string;
+  availability?: string;
+  nearbyAreas?: string[];
+  isActive?: boolean;
+  isFeatured?: boolean;
+  seoTitle?: string;
+  metaDescription?: string;
+  canonicalUrl?: string;
+  ogImage?: string;
+  focusKeyword?: string;
+  robots?: string;
+  schemaMarkup?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Review {

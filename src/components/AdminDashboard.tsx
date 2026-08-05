@@ -68,7 +68,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       setAuthError('');
       showToast('Welcome to Juli Club Admin CMS Portal');
     } else {
-      setAuthError('Invalid Admin Passcode. Default is admin123');
+      setAuthError('Invalid Admin Passcode.');
     }
   };
 
@@ -207,11 +207,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 type="password"
                 value={passcode}
                 onChange={e => setPasscode(e.target.value)}
-                placeholder="Enter admin passcode (e.g. admin123)"
+                placeholder="Enter admin passcode"
                 className="w-full bg-[#1c1c1c] border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-[#c5a059]"
                 autoFocus
               />
-              <p className="text-[11px] text-white/40 mt-1">Default Passcode: <code className="text-[#c5a059]">admin123</code></p>
             </div>
 
             {authError && (

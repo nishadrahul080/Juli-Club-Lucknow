@@ -12,10 +12,13 @@ import { ReviewsSection } from './components/ReviewsSection';
 import { FAQSection } from './components/FAQSection';
 import { Footer } from './components/Footer';
 import { LocationPageView } from './components/LocationPageView';
-import { AdminDashboard } from './components/AdminDashboard';
 import { CMSProvider, useCMS } from './context/CMSContext';
+import { AuthProvider } from './admin/context/AuthContext';
+import { AdminLoginPage } from './admin/pages/AdminLoginPage';
+import { AdminDashboardPage } from './admin/pages/AdminDashboardPage';
 
 import { CategoryType, LucknowArea, CompanionProfile } from './types';
+import { generateSlug } from './admin/profiles/utils/profileHelpers';
 import { Sparkles } from 'lucide-react';
 import { WhatsAppIcon } from './components/WhatsAppIcon';
 
@@ -30,9 +33,8 @@ function MainApp() {
   const [activeProfileModal, setActiveProfileModal] = useState<CompanionProfile | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState<boolean>(false);
   const [bookingInitialProfile, setBookingInitialProfile] = useState<CompanionProfile | null>(null);
-  const [isAdminOpen, setIsAdminOpen] = useState<boolean>(false);
 
-  // URL routing state for area location pages (e.g., 'call-girls-gomti-nagar')
+  // URL routing state for area location pages (e.g., 'call-girls-gomti-nagar') or '/admin-login'
   const [currentSlug, setCurrentSlug] = useState<string | null>(() => {
     const path = window.location.pathname.replace(/^\//, '');
     return path ? path : null;
@@ -48,8 +50,37 @@ function MainApp() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // Handle deep-linking to /profile/:slug or :slug matching profile
+  useEffect(() => {
+    if (!currentSlug) return;
+    if (currentSlug === 'admin-login' || currentSlug === 'admin-dashboard') return;
+    if (cmsData.locations[currentSlug]) return;
+
+    // Check if currentSlug matches a profile
+    const targetSlug = currentSlug.replace(/^profile\//, '');
+    const foundProfile = cmsData.profiles.find(
+      p => (p.slug || generateSlug(p.name)) === targetSlug || p.id === targetSlug
+    );
+
+    if (foundProfile) {
+      setActiveProfileModal(foundProfile);
+    }
+  }, [currentSlug, cmsData.profiles]);
+
   // Sync page title & meta description from CMS
   useEffect(() => {
+    if (currentSlug === 'admin-login') {
+      document.title = 'Admin Login | Juli Club Lucknow';
+      return;
+    }
+    if (currentSlug === 'admin-dashboard') {
+      document.title = 'Admin Control Panel | Juli Club Lucknow';
+      return;
+    }
+    if (activeProfileModal) {
+      document.title = activeProfileModal.seoTitle || `${activeProfileModal.name} (${activeProfileModal.category}) in ${activeProfileModal.location} Lucknow | 0 Advance Payment`;
+      return;
+    }
     if (currentSlug) {
       const locData = cmsData.locations[currentSlug];
       if (locData) {
@@ -58,17 +89,42 @@ function MainApp() {
       }
     }
     document.title = cmsData.settings.siteTitle || 'Juli Club - Call Girl Service Lucknow | 100% Cash on Delivery (0 Advance)';
-  }, [currentSlug, cmsData.settings.siteTitle, cmsData.locations]);
+  }, [currentSlug, cmsData.settings.siteTitle, cmsData.locations, activeProfileModal]);
 
   const handleNavigateHome = () => {
     setCurrentSlug(null);
+    setActiveProfileModal(null);
     window.history.pushState({}, '', '/');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleNavigateLocation = (slug: string) => {
     setCurrentSlug(slug);
+    setActiveProfileModal(null);
     window.history.pushState({}, '', `/${slug}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSelectProfileModal = (profile: CompanionProfile) => {
+    setActiveProfileModal(profile);
+    const pSlug = profile.slug || generateSlug(profile.name);
+    window.history.pushState({}, '', `/profile/${pSlug}`);
+  };
+
+  const handleCloseProfileModal = () => {
+    setActiveProfileModal(null);
+    window.history.pushState({}, '', currentSlug ? `/${currentSlug}` : '/');
+  };
+
+  const handleNavigateAdminLogin = () => {
+    setCurrentSlug('admin-login');
+    window.history.pushState({}, '', '/admin-login');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleNavigateAdminDashboard = () => {
+    setCurrentSlug('admin-dashboard');
+    window.history.pushState({}, '', '/admin-dashboard');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -81,6 +137,10 @@ function MainApp() {
   // Filter & Sort Profiles from CMS Store
   const filteredProfiles = useMemo(() => {
     return cmsData.profiles.filter((profile) => {
+      // Respect Active / Inactive toggle from CMS
+      if (profile.isActive === false) {
+        return false;
+      }
       // Category filter
       if (selectedCategory !== 'All' && profile.category !== selectedCategory) {
         return false;
@@ -102,6 +162,10 @@ function MainApp() {
       }
       return true;
     }).sort((a, b) => {
+      // Prioritize Featured Profiles
+      if (a.isFeatured !== b.isFeatured) {
+        return a.isFeatured ? -1 : 1;
+      }
       if (sortBy === 'priceLow') return a.rateShort - b.rateShort;
       if (sortBy === 'priceHigh') return b.rateShort - a.rateShort;
       if (sortBy === 'rating') return b.rating - a.rating;
@@ -118,6 +182,18 @@ function MainApp() {
     setBookingInitialProfile(null);
     setIsBookingModalOpen(true);
   };
+
+  if (currentSlug === 'admin-login') {
+    return (
+      <AdminLoginPage onSuccessNavigate={handleNavigateAdminDashboard} />
+    );
+  }
+
+  if (currentSlug === 'admin-dashboard') {
+    return (
+      <AdminDashboardPage onUnauthenticatedRedirect={handleNavigateAdminLogin} />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-[#e0e0e0] font-sans antialiased selection:bg-[#c5a059] selection:text-black">
@@ -179,12 +255,6 @@ function MainApp() {
 
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setIsAdminOpen(true)}
-                  className="px-3 py-2 bg-white/10 hover:bg-[#c5a059]/20 text-[#c5a059] border border-[#c5a059]/30 font-bold rounded-sm text-xs uppercase tracking-wider transition-colors"
-                >
-                  🔐 Admin CMS
-                </button>
-                <button
                   onClick={handleOpenGeneralBooking}
                   className="px-5 py-2.5 bg-[#c5a059] hover:bg-[#d4b578] text-black font-bold rounded-sm text-xs uppercase tracking-widest shadow-lg transition-colors"
                 >
@@ -200,7 +270,7 @@ function MainApp() {
                   <ProfileCard
                     key={profile.id}
                     profile={profile}
-                    onSelect={setActiveProfileModal}
+                    onSelect={handleSelectProfileModal}
                     onBookNow={handleOpenBookingForProfile}
                   />
                 ))}
@@ -236,7 +306,7 @@ function MainApp() {
             <RateChartTable
               onSelectCompanion={(id) => {
                 const comp = cmsData.profiles.find((p) => p.id === id);
-                if (comp) setActiveProfileModal(comp);
+                if (comp) handleSelectProfileModal(comp);
               }}
             />
 
@@ -253,7 +323,7 @@ function MainApp() {
       )}
 
       {/* Footer */}
-      <Footer onOpenBooking={handleOpenGeneralBooking} onOpenAdmin={() => setIsAdminOpen(true)} />
+      <Footer onOpenBooking={handleOpenGeneralBooking} />
 
       {/* Floating Bottom-Right WhatsApp Action Button */}
       <a
@@ -272,13 +342,10 @@ function MainApp() {
         <span className="font-bold text-xs uppercase tracking-wider whitespace-nowrap">WhatsApp Us Now</span>
       </a>
 
-      {/* Admin Dashboard Modal */}
-      {isAdminOpen && <AdminDashboard onClose={() => setIsAdminOpen(false)} />}
-
       {/* Modals */}
       <ProfileModal
         profile={activeProfileModal}
-        onClose={() => setActiveProfileModal(null)}
+        onClose={handleCloseProfileModal}
         onBookNow={handleOpenBookingForProfile}
       />
 
@@ -295,7 +362,9 @@ function MainApp() {
 export default function App() {
   return (
     <CMSProvider>
-      <MainApp />
+      <AuthProvider>
+        <MainApp />
+      </AuthProvider>
     </CMSProvider>
   );
 }

@@ -52,10 +52,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ selectedCity }) => {
             href="https://wa.me/918726179837?text=Hi%20Juli%20Club%2C%20I%20want%20to%20book%20a%20Call%20Girl%20Service%20Lucknow%20with%20Cash%20on%20Delivery."
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex items-center justify-center gap-2 sm:gap-3 px-5 py-3 sm:px-10 sm:py-4.5 bg-[#25D366] hover:bg-[#22c35e] text-white font-bold rounded-md text-xs sm:text-base uppercase tracking-wider shadow-xl shadow-green-950/50 hover:shadow-[0_0_30px_rgba(37,211,102,0.45)] border border-emerald-400/30 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.04] cursor-pointer w-full max-w-xs sm:w-auto"
+            className="group inline-flex items-center justify-center gap-2 sm:gap-2.5 px-5 py-2.5 sm:px-7 sm:py-3.5 bg-[#25D366] hover:bg-[#22c35e] text-white font-bold rounded-md text-xs sm:text-sm uppercase tracking-wider shadow-xl shadow-green-950/50 hover:shadow-[0_0_25px_rgba(37,211,102,0.4)] border border-emerald-400/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.02] cursor-pointer w-auto mx-auto whitespace-nowrap shrink-0"
           >
-            <WhatsAppIcon className="w-4 h-4 sm:w-6 sm:h-6 fill-current shrink-0 group-hover:rotate-12 transition-transform duration-300" />
-            <span>Book via WhatsApp Now</span>
+            <WhatsAppIcon className="w-4 h-4 sm:w-5 sm:h-5 fill-current shrink-0 group-hover:rotate-12 transition-transform duration-300" />
+            <span className="whitespace-nowrap">Book via WhatsApp Now</span>
           </a>
         </div>
       </div>
