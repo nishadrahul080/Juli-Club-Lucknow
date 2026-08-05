@@ -61,37 +61,37 @@ export const LocationPageView: React.FC<LocationPageViewProps> = ({
       </div>
 
       {/* Target SEO Hero Section */}
-      <section className="relative overflow-hidden bg-[#0d0d0d] py-16 md:py-24 text-[#e0e0e0] border-b border-white/10">
+      <section className="relative overflow-hidden bg-[#0d0d0d] py-10 sm:py-16 md:py-24 text-[#e0e0e0] border-b border-white/10">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 h-full w-3/4 bg-gradient-to-b from-[#c5a059]/10 via-transparent to-transparent pointer-events-none blur-3xl"></div>
 
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-7 md:space-y-9">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-5 sm:space-y-7 md:space-y-9">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#c5a059]/10 border border-[#c5a059]/30 text-[#c5a059] text-xs font-bold uppercase tracking-[0.2em] shadow-sm">
-            <MapPin className="w-4 h-4 text-[#c5a059] shrink-0" />
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-[#c5a059]/10 border border-[#c5a059]/30 text-[#c5a059] text-[10px] sm:text-xs font-bold uppercase tracking-wider sm:tracking-[0.2em] shadow-sm max-w-full text-center leading-tight">
+            <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#c5a059] shrink-0" />
             <span>Verified Location: {locationData.areaName}, Lucknow</span>
           </div>
 
           {/* Main Target H1 Title */}
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-serif text-[#e0e0e0] leading-tight font-bold tracking-tight max-w-4xl mx-auto">
+          <h1 className="text-2xl sm:text-5xl md:text-6xl font-serif text-[#e0e0e0] leading-tight font-bold tracking-tight max-w-4xl mx-auto">
             {locationData.h1}
           </h1>
 
           {/* Subtagline & Intro */}
-          <p className="text-sm sm:text-base md:text-lg text-white/80 max-w-2xl mx-auto leading-relaxed font-sans">
+          <p className="text-xs sm:text-base md:text-lg text-white/80 max-w-2xl mx-auto leading-relaxed font-sans">
             {locationData.intro}
           </p>
 
           {/* Guarantees / Trust Badges */}
-          <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-5 pt-1">
-            <div className="flex items-center gap-2 bg-[#161616] px-3.5 py-2 rounded-full border border-white/10 text-xs font-medium text-white/90 shadow-sm">
+          <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-5 pt-1">
+            <div className="flex items-center gap-1.5 bg-[#161616] px-2.5 py-1 sm:px-3.5 sm:py-2 rounded-full border border-white/10 text-[11px] sm:text-xs font-medium text-white/90 shadow-sm">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               <span>0 Advance Payment</span>
             </div>
-            <div className="flex items-center gap-2 bg-[#161616] px-3.5 py-2 rounded-full border border-white/10 text-xs font-medium text-white/90 shadow-sm">
+            <div className="flex items-center gap-1.5 bg-[#161616] px-2.5 py-1 sm:px-3.5 sm:py-2 rounded-full border border-white/10 text-[11px] sm:text-xs font-medium text-white/90 shadow-sm">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
               <span>100% Cash On Delivery</span>
             </div>
-            <div className="flex items-center gap-2 bg-[#161616] px-3.5 py-2 rounded-full border border-white/10 text-xs font-medium text-white/90 shadow-sm">
+            <div className="flex items-center gap-1.5 bg-[#161616] px-2.5 py-1 sm:px-3.5 sm:py-2 rounded-full border border-white/10 text-[11px] sm:text-xs font-medium text-white/90 shadow-sm">
               <Truck className="w-3.5 h-3.5 text-[#c5a059] shrink-0" />
               <span>Free 30-Min Hotel Pickup in {locationData.areaName}</span>
             </div>
@@ -99,14 +99,14 @@ export const LocationPageView: React.FC<LocationPageViewProps> = ({
 
           {/* Key Landmarks */}
           {locationData.landmarks.length > 0 && (
-            <div className="pt-1 flex flex-wrap justify-center items-center gap-2 max-w-3xl mx-auto">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#c5a059] mr-1">
+            <div className="pt-1 flex flex-wrap justify-center items-center gap-1.5 sm:gap-2 max-w-3xl mx-auto">
+              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#c5a059] mr-1">
                 Top Hotels & Outcalls:
               </span>
               {locationData.landmarks.map((lm) => (
                 <span
                   key={lm}
-                  className="px-2.5 py-1 bg-[#161616] border border-white/10 rounded-md text-xs text-white/70"
+                  className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-[#161616] border border-white/10 rounded-md text-[11px] sm:text-xs text-white/70"
                 >
                   {lm}
                 </span>
@@ -115,14 +115,14 @@ export const LocationPageView: React.FC<LocationPageViewProps> = ({
           )}
 
           {/* Single Centered WhatsApp CTA Button */}
-          <div className="pt-3 flex justify-center items-center">
+          <div className="pt-2 sm:pt-3 flex justify-center items-center">
             <a
               href={`https://wa.me/918726179837?text=${whatsappMessage}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="group inline-flex items-center justify-center gap-3 px-8 py-4 sm:px-10 sm:py-4.5 bg-[#25D366] hover:bg-[#22c35e] text-white font-bold rounded-md text-sm sm:text-base uppercase tracking-wider shadow-xl shadow-green-950/50 hover:shadow-[0_0_30px_rgba(37,211,102,0.45)] border border-emerald-400/30 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.04] cursor-pointer"
+              className="group inline-flex items-center justify-center gap-2 sm:gap-3 px-5 py-3 sm:px-10 sm:py-4.5 bg-[#25D366] hover:bg-[#22c35e] text-white font-bold rounded-md text-xs sm:text-base uppercase tracking-wider shadow-xl shadow-green-950/50 hover:shadow-[0_0_30px_rgba(37,211,102,0.45)] border border-emerald-400/30 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.04] cursor-pointer w-full max-w-xs sm:w-auto"
             >
-              <WhatsAppIcon className="w-6 h-6 fill-current shrink-0 group-hover:rotate-12 transition-transform duration-300" />
+              <WhatsAppIcon className="w-4 h-4 sm:w-6 sm:h-6 fill-current shrink-0 group-hover:rotate-12 transition-transform duration-300" />
               <span>Book via WhatsApp Now</span>
             </a>
           </div>
@@ -230,7 +230,7 @@ export const LocationPageView: React.FC<LocationPageViewProps> = ({
             href={`https://wa.me/918726179837?text=${whatsappMessage}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs uppercase tracking-widest rounded-sm transition-all shadow-xl hover:scale-105"
+            className="inline-flex items-center justify-center gap-2 px-5 py-3 sm:px-8 sm:py-3.5 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs uppercase tracking-widest rounded-sm transition-all shadow-xl hover:scale-105 w-full max-w-xs sm:w-auto"
           >
             <WhatsAppIcon className="w-4 h-4 fill-current shrink-0" />
             <span>Chat with Juli Club on WhatsApp</span>

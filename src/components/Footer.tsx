@@ -5,9 +5,10 @@ import { WhatsAppIcon } from './WhatsAppIcon';
 
 interface FooterProps {
   onOpenBooking: () => void;
+  onOpenAdmin?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenBooking }) => {
+export const Footer: React.FC<FooterProps> = ({ onOpenBooking, onOpenAdmin }) => {
   return (
     <footer className="bg-[#0a0a0a] text-white/70 border-t border-white/10 pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
@@ -110,8 +111,16 @@ export const Footer: React.FC<FooterProps> = ({ onOpenBooking }) => {
           <p>
             Disclaimer: This site is intended solely for consenting adults over 18 years of age. All companion profiles are independent contractors. All meetings are 100% voluntary with total privacy and cash on delivery payment.
           </p>
-          <p className="text-white/60 font-medium">
-            © 2026 Juli Club - Call Girl Service Lucknow. All Rights Reserved. Administration Mail: ramanarora7869@gmail.com
+          <p className="text-white/60 font-medium flex flex-wrap items-center justify-center gap-2">
+            <span>© 2026 Juli Club - Call Girl Service Lucknow. All Rights Reserved.</span>
+            {onOpenAdmin && (
+              <button
+                onClick={onOpenAdmin}
+                className="text-[#c5a059] hover:underline px-2 py-0.5 rounded bg-[#c5a059]/10 border border-[#c5a059]/30 text-[10px] font-bold"
+              >
+                🔐 Admin CMS Portal
+              </button>
+            )}
           </p>
         </div>
       </div>

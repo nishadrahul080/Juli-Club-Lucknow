@@ -12,14 +12,15 @@ import { ReviewsSection } from './components/ReviewsSection';
 import { FAQSection } from './components/FAQSection';
 import { Footer } from './components/Footer';
 import { LocationPageView } from './components/LocationPageView';
+import { AdminDashboard } from './components/AdminDashboard';
+import { CMSProvider, useCMS } from './context/CMSContext';
 
-import { COMPANION_PROFILES } from './data/mockData';
-import { getLocationBySlug } from './data/locationData';
 import { CategoryType, LucknowArea, CompanionProfile } from './types';
-import { Sparkles, ShieldCheck } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { WhatsAppIcon } from './components/WhatsAppIcon';
 
-export default function App() {
+function MainApp() {
+  const { cmsData } = useCMS();
   const [selectedCity, setSelectedCity] = useState<string>('Lucknow');
   const [selectedCategory, setSelectedCategory] = useState<CategoryType>('All');
   const [selectedArea, setSelectedArea] = useState<LucknowArea>('All Lucknow');
@@ -29,6 +30,7 @@ export default function App() {
   const [activeProfileModal, setActiveProfileModal] = useState<CompanionProfile | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState<boolean>(false);
   const [bookingInitialProfile, setBookingInitialProfile] = useState<CompanionProfile | null>(null);
+  const [isAdminOpen, setIsAdminOpen] = useState<boolean>(false);
 
   // URL routing state for area location pages (e.g., 'call-girls-gomti-nagar')
   const [currentSlug, setCurrentSlug] = useState<string | null>(() => {
@@ -46,17 +48,17 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Sync page title
+  // Sync page title & meta description from CMS
   useEffect(() => {
     if (currentSlug) {
-      const locData = getLocationBySlug(currentSlug);
+      const locData = cmsData.locations[currentSlug];
       if (locData) {
         document.title = locData.title;
         return;
       }
     }
-    document.title = 'Juli Club - Call Girl Service Lucknow | 100% Cash on Delivery (0 Advance)';
-  }, [currentSlug]);
+    document.title = cmsData.settings.siteTitle || 'Juli Club - Call Girl Service Lucknow | 100% Cash on Delivery (0 Advance)';
+  }, [currentSlug, cmsData.settings.siteTitle, cmsData.locations]);
 
   const handleNavigateHome = () => {
     setCurrentSlug(null);
@@ -73,13 +75,12 @@ export default function App() {
   // Active Location Data if on location page
   const activeLocationData = useMemo(() => {
     if (!currentSlug) return null;
-    return getLocationBySlug(currentSlug) || null;
-  }, [currentSlug]);
+    return cmsData.locations[currentSlug] || null;
+  }, [currentSlug, cmsData.locations]);
 
-
-  // Filter & Sort Profiles
+  // Filter & Sort Profiles from CMS Store
   const filteredProfiles = useMemo(() => {
-    return COMPANION_PROFILES.filter((profile) => {
+    return cmsData.profiles.filter((profile) => {
       // Category filter
       if (selectedCategory !== 'All' && profile.category !== selectedCategory) {
         return false;
@@ -106,7 +107,7 @@ export default function App() {
       if (sortBy === 'rating') return b.rating - a.rating;
       return b.reviewsCount - a.reviewsCount; // popular
     });
-  }, [selectedCategory, selectedArea, searchQuery, sortBy]);
+  }, [cmsData.profiles, selectedCategory, selectedArea, searchQuery, sortBy]);
 
   const handleOpenBookingForProfile = (profile: CompanionProfile) => {
     setBookingInitialProfile(profile);
@@ -176,12 +177,20 @@ export default function App() {
                 </p>
               </div>
 
-              <button
-                onClick={handleOpenGeneralBooking}
-                className="px-5 py-2.5 bg-[#c5a059] hover:bg-[#d4b578] text-black font-bold rounded-sm text-xs uppercase tracking-widest shadow-lg transition-colors"
-              >
-                Express Booking (0-Advance)
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsAdminOpen(true)}
+                  className="px-3 py-2 bg-white/10 hover:bg-[#c5a059]/20 text-[#c5a059] border border-[#c5a059]/30 font-bold rounded-sm text-xs uppercase tracking-wider transition-colors"
+                >
+                  🔐 Admin CMS
+                </button>
+                <button
+                  onClick={handleOpenGeneralBooking}
+                  className="px-5 py-2.5 bg-[#c5a059] hover:bg-[#d4b578] text-black font-bold rounded-sm text-xs uppercase tracking-widest shadow-lg transition-colors"
+                >
+                  Express Booking (0-Advance)
+                </button>
+              </div>
             </div>
 
             {/* Profile Grid */}
@@ -226,7 +235,7 @@ export default function App() {
             {/* Rate Chart Table */}
             <RateChartTable
               onSelectCompanion={(id) => {
-                const comp = COMPANION_PROFILES.find((p) => p.id === id);
+                const comp = cmsData.profiles.find((p) => p.id === id);
                 if (comp) setActiveProfileModal(comp);
               }}
             />
@@ -244,20 +253,27 @@ export default function App() {
       )}
 
       {/* Footer */}
-      <Footer onOpenBooking={handleOpenGeneralBooking} />
+      <Footer onOpenBooking={handleOpenGeneralBooking} onOpenAdmin={() => setIsAdminOpen(true)} />
 
-      {/* Floating Sticky WhatsApp Bar (Mobile) */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#0a0a0a]/95 border-t border-white/10 p-2.5 sm:hidden backdrop-blur-md flex items-center justify-between gap-2 shadow-2xl">
-        <a
-          href="https://wa.me/918726179837?text=Hi%20Juli%20Club%2C%20I%20want%20to%20book%20a%20Call%20Girl%20Service%20Lucknow%20with%20Cash%20on%20Delivery."
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full py-3 bg-[#25D366] active:bg-[#20bd5a] text-white font-bold rounded-md text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 shadow-lg shadow-green-950/50"
-        >
-          <WhatsAppIcon className="w-4 h-4 fill-current shrink-0" />
-          <span>WhatsApp Us Now (0 Advance COD)</span>
-        </a>
-      </div>
+      {/* Floating Bottom-Right WhatsApp Action Button */}
+      <a
+        href={`https://wa.me/${cmsData.settings.whatsappNumber}?text=${encodeURIComponent(cmsData.settings.whatsappMessage)}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-5 right-5 z-50 bg-[#25D366] hover:bg-[#22c35e] text-white p-3.5 sm:px-5 sm:py-3.5 rounded-full shadow-2xl shadow-green-950/60 border border-emerald-400/40 flex items-center gap-2.5 transition-all duration-300 hover:scale-105 active:scale-95 group cursor-pointer"
+        title="Chat on WhatsApp"
+        aria-label="WhatsApp Us Now"
+      >
+        <span className="relative flex h-3 w-3 shrink-0">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+        </span>
+        <WhatsAppIcon className="w-5 h-5 sm:w-6 sm:h-6 fill-current shrink-0 group-hover:rotate-12 transition-transform duration-300" />
+        <span className="font-bold text-xs uppercase tracking-wider whitespace-nowrap">WhatsApp Us Now</span>
+      </a>
+
+      {/* Admin Dashboard Modal */}
+      {isAdminOpen && <AdminDashboard onClose={() => setIsAdminOpen(false)} />}
 
       {/* Modals */}
       <ProfileModal
@@ -273,5 +289,13 @@ export default function App() {
         />
       )}
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <CMSProvider>
+      <MainApp />
+    </CMSProvider>
   );
 }

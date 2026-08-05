@@ -45,9 +45,79 @@ export const RateChartTable: React.FC<RateChartTableProps> = ({ onSelectCompanio
           />
         </div>
 
-        {/* Responsive Table */}
+        {/* Responsive Rate Chart Container */}
         <div className="bg-[#0f0f0f] border border-white/10 rounded overflow-hidden shadow-2xl">
-          <div className="overflow-x-auto">
+          {/* Mobile Card List (Visible on < sm screens) */}
+          <div className="block sm:hidden divide-y divide-white/10 font-sans">
+            {filtered.map((profile) => (
+              <div key={profile.id} className="p-4 space-y-3 bg-[#0d0d0d]">
+                {/* Header: Photo + Name + Category */}
+                <div className="flex items-start gap-3">
+                  <img
+                    src={profile.image}
+                    alt={profile.name}
+                    referrerPolicy="no-referrer"
+                    className="w-12 h-12 rounded object-cover border border-white/10 shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-1 flex-wrap">
+                      <button
+                        onClick={() => onSelectCompanion(profile.id)}
+                        className="font-serif font-bold text-[#e0e0e0] hover:text-[#c5a059] transition-colors text-base text-left truncate"
+                      >
+                        {profile.name}
+                      </button>
+                      <span className="inline-flex items-center gap-1 text-[9px] text-emerald-400 bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-500/30 font-bold uppercase tracking-wider shrink-0">
+                        <CheckCircle2 className="w-2.5 h-2.5" /> Genuine
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-white/50 mt-0.5">
+                      {profile.age} yrs • {profile.height}
+                    </div>
+                    <div className="mt-1 flex items-center gap-2 flex-wrap">
+                      <span className="px-2 py-0.5 rounded bg-[#1a1a1a] text-[#c5a059] border border-[#c5a059]/30 text-[10px] font-bold uppercase tracking-wider inline-block">
+                        {profile.category}
+                      </span>
+                      <span className="text-xs text-white/80 font-medium">
+                        📍 {profile.location}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rates & Action Row */}
+                <div className="bg-[#141414] p-2.5 rounded border border-white/5 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <span className="text-[9px] text-white/40 uppercase tracking-widest block font-bold">Short (2h)</span>
+                      <span className="text-[#c5a059] font-bold italic text-xs">₹{profile.rateShort.toLocaleString()}</span>
+                    </div>
+                    <div className="h-6 w-px bg-white/10"></div>
+                    <div>
+                      <span className="text-[9px] text-white/40 uppercase tracking-widest block font-bold">Full Night (8h)</span>
+                      <span className="text-[#c5a059] font-bold italic text-xs">₹{profile.rateFull.toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  <a
+                    href={`https://wa.me/${profile.whatsapp}?text=Hi%20Juli%20Club%2C%20I%20want%20to%20book%20${encodeURIComponent(
+                      profile.name
+                    )}%20from%20the%20Lucknow%20rate%20chart.`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 transition-colors shrink-0"
+                    title="WhatsApp Booking"
+                  >
+                    <WhatsAppIcon className="w-3.5 h-3.5 fill-current shrink-0" />
+                    <span>WhatsApp</span>
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table View (Visible on >= sm screens) */}
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-[#1a1a1a] text-[#c5a059] font-bold border-b border-white/10 uppercase tracking-[0.2em] text-[9px]">
