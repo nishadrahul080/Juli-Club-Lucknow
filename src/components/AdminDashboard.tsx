@@ -897,7 +897,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                   <span>Hostinger CI/CD & Automatic Deployment Center</span>
                 </h2>
                 <p className="text-xs text-white/60">
-                  Every commit pushed to your GitHub repository automatically builds and deploys to Hostinger's <code className="text-[#c5a059]">public_html/lucknow/</code> via GitHub Actions!
+                  Every commit pushed to your GitHub repository automatically builds and deploys to Hostinger's <code className="text-[#c5a059]">./lucknow/</code> folder via GitHub Actions!
                 </p>
               </div>
 
@@ -973,7 +973,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 <ol className="list-decimal list-inside space-y-2 text-white/70">
                   <li>Make updates in AI Studio or commit code directly to GitHub.</li>
                   <li>GitHub Actions automatically triggers the <code className="text-[#c5a059]">build-and-deploy</code> job on push to <code className="text-[#c5a059]">main</code>.</li>
-                  <li>The workflow compiles Vite assets, tests syntax, and syncs updated files directly to Hostinger <code className="text-[#c5a059]">public_html/lucknow/</code>.</li>
+                  <li>The workflow compiles Vite assets, tests syntax, and syncs updated files directly to Hostinger <code className="text-[#c5a059]">./lucknow/</code>.</li>
                   <li>Full deployment logs and 1-click re-runs/rollbacks are stored under the <strong>Actions</strong> tab on your GitHub repository!</li>
                 </ol>
                 <p className="text-[11px] text-white/50 pt-2 border-t border-white/10">
