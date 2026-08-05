@@ -4,6 +4,10 @@ import { AdminLayout } from '../components/AdminLayout';
 import { DashboardModule } from '../modules/DashboardModule';
 import { MediaLibraryModule } from '../modules/MediaLibraryModule';
 import { ProfilesModule } from '../modules/ProfilesModule';
+import { HomepageModule } from '../modules/HomepageModule';
+import { LocationModule } from '../modules/LocationModule';
+import { BlogModule } from '../modules/BlogModule';
+import { SeoModule } from '../modules/SeoModule';
 import { PlaceholderModule } from '../modules/PlaceholderModule';
 import { SettingsModule } from '../modules/SettingsModule';
 import { SystemModule } from '../modules/SystemModule';
@@ -42,40 +46,22 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onUnauth
         return <DashboardModule onNavigateTab={setActiveTab} />;
 
       case 'homepage':
-        return (
-          <PlaceholderModule
-            title="Homepage Content Manager"
-            description="Manage hero banners, main headings, introductory paragraphs, and high-converting call-to-action buttons."
-            category="Frontend Layout"
-            icon={<Home className="w-6 h-6" />}
-          />
-        );
+        return <HomepageModule />;
 
       case 'location-pages':
-        return (
-          <PlaceholderModule
-            title="Lucknow Location Pages Engine"
-            description="Create and customize SEO landing pages for Gomti Nagar, Hazratganj, Alambagh, Indira Nagar, and all Lucknow coverage areas."
-            category="Area Landing Routes"
-            icon={<MapPin className="w-6 h-6" />}
-          />
-        );
+        return <LocationModule />;
 
       case 'profiles':
         return <ProfilesModule />;
+
+      case 'blogs':
+        return <BlogModule />;
 
       case 'media-library':
         return <MediaLibraryModule />;
 
       case 'seo':
-        return (
-          <PlaceholderModule
-            title="Global SEO & Meta Tag Engine"
-            description="Configure meta titles, meta descriptions, canonical URLs, JSON-LD structured schema, and OpenGraph social cards."
-            category="Search Optimization"
-            icon={<Search className="w-6 h-6" />}
-          />
-        );
+        return <SeoModule />;
 
       case 'reviews':
         return (

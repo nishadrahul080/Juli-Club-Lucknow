@@ -16,14 +16,15 @@ import { CMSProvider, useCMS } from './context/CMSContext';
 import { AuthProvider } from './admin/context/AuthContext';
 import { AdminLoginPage } from './admin/pages/AdminLoginPage';
 import { AdminDashboardPage } from './admin/pages/AdminDashboardPage';
+import { PublicSectionRenderer } from './components/PublicSectionRenderer';
 
 import { CategoryType, LucknowArea, CompanionProfile } from './types';
 import { generateSlug } from './admin/profiles/utils/profileHelpers';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Eye, X } from 'lucide-react';
 import { WhatsAppIcon } from './components/WhatsAppIcon';
 
 function MainApp() {
-  const { cmsData } = useCMS();
+  const { cmsData, isPreviewMode, togglePreviewMode } = useCMS();
   const [selectedCity, setSelectedCity] = useState<string>('Lucknow');
   const [selectedCategory, setSelectedCategory] = useState<CategoryType>('All');
   const [selectedArea, setSelectedArea] = useState<LucknowArea>('All Lucknow');
@@ -34,13 +35,26 @@ function MainApp() {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState<boolean>(false);
   const [bookingInitialProfile, setBookingInitialProfile] = useState<CompanionProfile | null>(null);
 
-  // URL routing state for area location pages (e.g., 'call-girls-gomti-nagar') or '/admin-login'
+  // URL routing state for area location pages or '/admin-login'
   const [currentSlug, setCurrentSlug] = useState<string | null>(() => {
     const path = window.location.pathname.replace(/^\//, '');
     return path ? path : null;
   });
 
-  // Handle browser popstate (back/forward buttons)
+  // Handle redirect rules
+  useEffect(() => {
+    if (!currentSlug || !cmsData.redirects || cmsData.redirects.length === 0) return;
+    const rule = cmsData.redirects.find(
+      r => r.isActive && (r.fromSlug === `/${currentSlug}` || r.fromSlug === currentSlug)
+    );
+    if (rule) {
+      const cleanTarget = rule.toTarget.replace(/^\//, '');
+      setCurrentSlug(cleanTarget || null);
+      window.history.pushState({}, '', rule.toTarget);
+    }
+  }, [currentSlug, cmsData.redirects]);
+
+  // Handle browser popstate
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname.replace(/^\//, '');
@@ -65,7 +79,7 @@ function MainApp() {
     if (foundProfile) {
       setActiveProfileModal(foundProfile);
     }
-  }, [currentSlug, cmsData.profiles]);
+  }, [currentSlug, cmsData.profiles, cmsData.locations]);
 
   // Sync page title & meta description from CMS
   useEffect(() => {
@@ -88,8 +102,8 @@ function MainApp() {
         return;
       }
     }
-    document.title = cmsData.settings.siteTitle || 'Juli Club - Call Girl Service Lucknow | 100% Cash on Delivery (0 Advance)';
-  }, [currentSlug, cmsData.settings.siteTitle, cmsData.locations, activeProfileModal]);
+    document.title = cmsData.homepage?.seoTitle || cmsData.settings.siteTitle || 'Juli Club - Call Girl Service Lucknow | 100% Cash on Delivery (0 Advance)';
+  }, [currentSlug, cmsData.settings.siteTitle, cmsData.homepage, cmsData.locations, activeProfileModal]);
 
   const handleNavigateHome = () => {
     setCurrentSlug(null);
@@ -197,6 +211,31 @@ function MainApp() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-[#e0e0e0] font-sans antialiased selection:bg-[#c5a059] selection:text-black">
+      {/* Live Preview Mode Sticky Header */}
+      {isPreviewMode && (
+        <div className="bg-amber-500 text-black px-4 py-2 text-xs font-bold flex items-center justify-between sticky top-0 z-50 shadow-md">
+          <div className="flex items-center gap-2">
+            <Eye className="w-4 h-4" />
+            <span>CMS Live Preview Mode Active - Viewing Unsaved/Draft Content</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleNavigateAdminDashboard}
+              className="px-3 py-1 bg-black text-amber-400 rounded text-[11px] font-bold"
+            >
+              Back to CMS Admin
+            </button>
+            <button
+              onClick={() => togglePreviewMode(false)}
+              className="p-1 hover:bg-black/20 rounded"
+              title="Close Preview Mode"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Sticky Header */}
       <Navbar
         selectedCity={selectedCity}
@@ -293,6 +332,11 @@ function MainApp() {
                   Reset Filters
                 </button>
               </div>
+            )}
+
+            {/* Render CMS Sections if provided */}
+            {cmsData.homepage?.sections && cmsData.homepage.sections.length > 0 && (
+              <PublicSectionRenderer sections={cmsData.homepage.sections} profiles={filteredProfiles} />
             )}
 
             {/* Lucknow Coverage Map Grid */}

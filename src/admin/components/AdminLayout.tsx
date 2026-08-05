@@ -16,7 +16,8 @@ import {
   Menu,
   X,
   ExternalLink,
-  ChevronRight
+  ChevronRight,
+  FileText
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -34,8 +35,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ activeTab, onSelectTab
     { id: 'homepage', label: 'Homepage', icon: <Home className="w-4 h-4" /> },
     { id: 'location-pages', label: 'Location Pages', icon: <MapPin className="w-4 h-4" /> },
     { id: 'profiles', label: 'Profiles', icon: <Users className="w-4 h-4" /> },
+    { id: 'blogs', label: 'Blog CMS', icon: <FileText className="w-4 h-4" /> },
     { id: 'media-library', label: 'Media Library', icon: <ImageIcon className="w-4 h-4" /> },
-    { id: 'seo', label: 'SEO', icon: <Search className="w-4 h-4" /> },
+    { id: 'seo', label: 'Enterprise SEO', icon: <Search className="w-4 h-4" /> },
     { id: 'reviews', label: 'Reviews', icon: <Star className="w-4 h-4" /> },
     { id: 'faq', label: 'FAQ', icon: <HelpCircle className="w-4 h-4" /> },
     { id: 'settings', label: 'Settings', icon: <Settings className="w-4 h-4" /> },

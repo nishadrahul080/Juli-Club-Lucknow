@@ -4,6 +4,7 @@ import { ProfileCard } from './ProfileCard';
 import { ShieldCheck, CheckCircle2, Truck, MapPin, Star, ArrowLeft, ChevronRight, Phone } from 'lucide-react';
 import { WhatsAppIcon } from './WhatsAppIcon';
 import { COMPANION_PROFILES } from '../data/mockData';
+import { PublicSectionRenderer } from './PublicSectionRenderer';
 
 interface LocationPageViewProps {
   locationData: LocationPageInfo;
@@ -157,6 +158,11 @@ export const LocationPageView: React.FC<LocationPageViewProps> = ({
           ))}
         </div>
       </section>
+
+      {/* Custom CMS-managed sections for this location */}
+      {locationData.customSections && locationData.customSections.length > 0 && (
+        <PublicSectionRenderer sections={locationData.customSections} profiles={areaProfiles} />
+      )}
 
       {/* Comprehensive SEO Content Section */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">

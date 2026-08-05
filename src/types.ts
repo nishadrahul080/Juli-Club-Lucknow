@@ -11,6 +11,8 @@ export type CategoryType =
   | 'North Indian'
   | 'Asian';
 
+export type { BlogPost } from './data/cmsStore';
+
 export type LucknowArea =
   | 'All Lucknow'
   | 'Gomti Nagar'
@@ -109,23 +111,116 @@ export interface CityInfo {
   isPopular?: boolean;
 }
 
+export type PublishStatus = 'draft' | 'published' | 'scheduled' | 'archived';
+
+export type SectionType =
+  | 'hero'
+  | 'text'
+  | 'image'
+  | 'image-text'
+  | 'gallery'
+  | 'cards'
+  | 'faq'
+  | 'cta'
+  | 'statistics'
+  | 'review'
+  | 'custom-html'
+  | 'divider'
+  | 'spacer';
+
+export interface CMSSection {
+  id: string;
+  type: SectionType;
+  title: string;
+  subtitle?: string;
+  description?: string;
+  ctaText?: string;
+  ctaUrl?: string;
+  bgImage?: string;
+  bgColor?: string;
+  spacing?: 'none' | 'small' | 'medium' | 'large';
+  order: number;
+  show: boolean;
+  status: PublishStatus;
+  scheduledAt?: string;
+  customData?: Record<string, any>;
+}
+
+export interface HomepageConfig {
+  seoTitle: string;
+  metaDescription: string;
+  canonicalUrl: string;
+  robots: string;
+  ogTitle: string;
+  ogDescription: string;
+  ogImage: string;
+  twitterCard: string;
+  focusKeyword: string;
+  schemaMarkup: string;
+  status: PublishStatus;
+  scheduledAt?: string;
+  sections: CMSSection[];
+}
+
+export interface RedirectRule {
+  id: string;
+  fromSlug: string;
+  toTarget: string;
+  oldSlug?: string;
+  newSlug?: string;
+  statusCode: 301 | 302;
+  isActive: boolean;
+  createdAt?: string;
+}
+
 export interface LocationPageInfo {
   slug: string;
-  areaName: LucknowArea;
+  areaName: LucknowArea | string;
+  locationName?: string;
   title: string;
   metaDescription: string;
   h1: string;
+  heroTitle?: string;
+  heroDescription?: string;
+  heroImage?: string;
   tagline: string;
   intro: string;
   keywords: string[];
   landmarks: string[];
+  highlights?: string[];
+  popularHotels?: string[];
+  pricingOverrides?: {
+    shortTime1Hr?: string;
+    shortTime2Hr?: string;
+    fullNight?: string;
+  };
+  canonicalUrl?: string;
+  ogImage?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  twitterCard?: string;
+  robotsMeta?: string;
+  focusKeyword?: string;
+  schemaMarkup?: string;
+  nearbyAreas?: string[];
+  relatedPages?: string[];
+  breadcrumbText?: string;
+  ctaText?: string;
+  whatsappNumber?: string;
+  status?: PublishStatus;
+  scheduledAt?: string;
+  isFeatured?: boolean;
   contentSections: {
     title: string;
     paragraphs: string[];
   }[];
+  customSections?: CMSSection[];
   faqs: {
     question: string;
     answer: string;
   }[];
+  oldSlugs?: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
