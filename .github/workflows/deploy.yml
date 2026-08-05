@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-and-deploy:
-    name: Build & Deploy to Hostinger (public_html)
+    name: Build & Deploy to Hostinger (public_html/lucknow/)
     runs-on: ubuntu-latest
 
     steps:
@@ -30,15 +30,18 @@ jobs:
       - name: 🏗️ Build Production Static Bundle
         run: npm run build
 
-      - name: 🚀 Deploy to Hostinger via FTP (Sync to public_html)
-        uses: SamKirland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: ${{ secrets.FTP_PORT || 21 }}
-          local-dir: ./dist/
-          server-dir: ./public_html/
-          state-name: .ftp-deploy-sync-state.json
-          log-level: verbose
-          dangerous-clean-slate: false
+      - name: 🚀 Deploy to Hostinger via FTP (Sync to public_html/lucknow/)
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_PORT: ${{ secrets.FTP_PORT || 21 }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y lftp
+          lftp -c "
+          set ftp:ssl-allow true;
+          set ssl:verify-certificate false;
+          set ftp:passive-mode true;
+          open -u $FTP_USERNAME,$FTP_PASSWORD -p $FTP_PORT $FTP_SERVER;
+          mirror --reverse --continue --verbose ./dist/ ./public_html/lucknow/;
+          "
