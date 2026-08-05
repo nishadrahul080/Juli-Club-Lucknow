@@ -1,0 +1,44 @@
+name: 🚀 Automatic Hostinger CI/CD Deployment
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy to Hostinger (public_html)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📁 Checkout Repository Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🟢 Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Install Project Dependencies
+        run: npm ci
+
+      - name: 🏗️ Build Production Static Bundle
+        run: npm run build
+
+      - name: 🚀 Deploy to Hostinger via FTP (Sync to public_html)
+        uses: SamKirland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT || 21 }}
+          local-dir: ./dist/
+          server-dir: ./public_html/
+          state-name: .ftp-deploy-sync-state.json
+          log-level: verbose
+          dangerous-clean-slate: false

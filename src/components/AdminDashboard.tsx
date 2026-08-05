@@ -888,28 +888,62 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             </div>
           )}
 
-          {/* TAB 5: Hostinger Export & Deploy Instructions */}
+          {/* TAB 5: Hostinger Export & Automatic CI/CD Deploy Instructions */}
           {activeTab === 'export' && (
             <div className="space-y-6 max-w-3xl">
               <div>
                 <h2 className="text-xl font-serif font-bold text-white flex items-center gap-2">
-                  <Download className="w-5 h-5 text-[#c5a059]" />
-                  <span>Hostinger Direct Deployment & Export Center</span>
+                  <Globe className="w-5 h-5 text-[#c5a059]" />
+                  <span>Hostinger CI/CD & Automatic Deployment Center</span>
                 </h2>
                 <p className="text-xs text-white/60">
-                  Deploy or sync changes directly to Hostinger's <code className="text-[#c5a059]">public_html</code> without terminal commands or build tools.
+                  Every commit pushed to your GitHub repository automatically builds and deploys to Hostinger's <code className="text-[#c5a059]">public_html</code> via GitHub Actions!
                 </p>
               </div>
 
-              <div className="bg-[#141414] border border-[#c5a059]/40 p-5 rounded-xl space-y-4">
+              {/* GitHub Actions CI/CD Card */}
+              <div className="bg-[#141414] border border-[#25D366]/40 p-5 rounded-xl space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-[#25D366]/20 text-[#25D366] flex items-center justify-center font-bold text-lg">
+                      ⚡
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-white">Automatic GitHub Actions CI/CD (Active)</h3>
+                      <p className="text-xs text-emerald-400 font-medium">
+                        ✓ File <code className="text-white font-mono">.github/workflows/deploy.yml</code> is configured in repository
+                      </p>
+                    </div>
+                  </div>
+                  <span className="px-2.5 py-1 bg-emerald-950 text-emerald-400 border border-emerald-500/30 rounded text-[10px] font-bold uppercase tracking-wider">
+                    Auto Deploy Enabled
+                  </span>
+                </div>
+
+                <div className="bg-[#0b0b0b] p-3.5 rounded-lg border border-white/10 text-xs text-white/80 space-y-2">
+                  <p className="font-bold text-[#c5a059]">Required GitHub Secrets (Setup in 2 minutes):</p>
+                  <p className="text-[11px] text-white/70">
+                    Go to your GitHub Repository ➔ <strong>Settings</strong> ➔ <strong>Secrets and variables</strong> ➔ <strong>Actions</strong> ➔ Add New Repository Secrets:
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 text-[11px] font-mono text-white/90 bg-[#161616] p-2.5 rounded border border-white/5">
+                    <li><strong className="text-[#c5a059]">FTP_SERVER</strong>: your-hostinger-ftp-host (e.g. ftp.juliclub.in or access IP)</li>
+                    <li><strong className="text-[#c5a059]">FTP_USERNAME</strong>: your Hostinger FTP username</li>
+                    <li><strong className="text-[#c5a059]">FTP_PASSWORD</strong>: your Hostinger FTP password</li>
+                    <li><strong className="text-[#c5a059]">FTP_PORT</strong>: 21 (or 22 for SFTP)</li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Manual ZIP Download Option */}
+              <div className="bg-[#141414] border border-white/10 p-5 rounded-xl space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#25D366]/10 text-[#25D366] flex items-center justify-center font-bold">
-                    ✓
+                  <div className="w-10 h-10 rounded-full bg-[#c5a059]/10 text-[#c5a059] flex items-center justify-center font-bold">
+                    <Download className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-white">Download Production ZIP Package</h3>
+                    <h3 className="text-sm font-bold text-white">Manual ZIP Package Backup</h3>
                     <p className="text-xs text-white/60">
-                      Export your complete updated website bundled as a single uploadable ZIP file.
+                      Download pre-packaged <code className="text-[#c5a059]">public_html.zip</code> for manual upload anytime if needed.
                     </p>
                   </div>
                 </div>
@@ -935,14 +969,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
               </div>
 
               <div className="bg-[#141414] border border-white/10 p-5 rounded-xl space-y-3 text-xs text-white/80">
-                <h4 className="font-bold text-[#c5a059] uppercase tracking-wider">3-Step Hostinger Deployment Guide</h4>
+                <h4 className="font-bold text-[#c5a059] uppercase tracking-wider">How Automatic Deployment Works</h4>
                 <ol className="list-decimal list-inside space-y-2 text-white/70">
-                  <li>Log in to your <strong>Hostinger hPanel</strong> and click on <strong>File Manager</strong>.</li>
-                  <li>Navigate to your root directory (<code className="text-[#c5a059]">public_html</code>).</li>
-                  <li>Upload <code className="text-[#c5a059]">public_html.zip</code> and click <strong>Extract Here</strong>.</li>
+                  <li>Make updates in AI Studio or commit code directly to GitHub.</li>
+                  <li>GitHub Actions automatically triggers the <code className="text-[#c5a059]">build-and-deploy</code> job on push to <code className="text-[#c5a059]">main</code>.</li>
+                  <li>The workflow compiles Vite assets, tests syntax, and syncs updated files directly to Hostinger <code className="text-[#c5a059]">public_html</code>.</li>
+                  <li>Full deployment logs and 1-click re-runs/rollbacks are stored under the <strong>Actions</strong> tab on your GitHub repository!</li>
                 </ol>
                 <p className="text-[11px] text-white/50 pt-2 border-t border-white/10">
-                  ✨ The website will be instantly live on your custom domain <code className="text-[#c5a059]">lucknow.juliclub.in</code> with all meta tags and phone numbers applied!
+                  ✨ Live domain: <code className="text-[#c5a059]">lucknow.juliclub.in</code> — updates go live seamlessly within seconds!
                 </p>
               </div>
             </div>
