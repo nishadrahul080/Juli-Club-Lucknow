@@ -138,7 +138,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
 
                 {/* Category Filter Pills */}
                 <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto py-1">
-                  {(['all', 'profiles', 'gallery', 'blog', 'logos', 'seo', 'location-pages'] as const).map(cat => (
+                  {(['all', 'profiles', 'gallery', 'blog', 'logos', 'seo', 'location-pages', 'banners', 'uncategorized'] as const).map(cat => (
                     <button
                       key={cat}
                       onClick={() => setSelectedCategory(cat)}

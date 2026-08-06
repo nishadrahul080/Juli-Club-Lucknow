@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useCMS } from '../../context/CMSContext';
 import { useAuth } from '../context/AuthContext';
 import { SiteSettings, NavItemConfig, QuickLinkConfig, PopupConfig, ThemeConfig } from '../../data/cmsStore';
+import { MediaPickerModal } from '../media/components/MediaPickerModal';
 import {
   Globe,
   Sliders,
@@ -59,6 +60,7 @@ export const SettingsModule: React.FC = () => {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmittingCredentials, setIsSubmittingCredentials] = useState<boolean>(false);
+  const [mediaPickerTargetField, setMediaPickerTargetField] = useState<keyof SiteSettings | null>(null);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -373,10 +375,19 @@ export const SettingsModule: React.FC = () => {
                     onChange={e => handleChange('logoUrl', e.target.value)}
                     className="w-full bg-[#111] border border-white/10 rounded-lg px-2.5 py-1.5 text-[11px] text-white"
                   />
-                  <label className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer">
-                    <Upload className="w-3.5 h-3.5 text-[#c5a059]" /> Upload File
-                    <input type="file" accept="image/*" onChange={handleFileUpload('logoUrl')} className="hidden" />
-                  </label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setMediaPickerTargetField('logoUrl')}
+                      className="flex-1 py-1.5 bg-[#c5a059] hover:bg-[#d4b578] text-black font-bold rounded-lg text-xs flex items-center justify-center gap-1 cursor-pointer"
+                    >
+                      <ImageIcon className="w-3.5 h-3.5" /> Media Library
+                    </button>
+                    <label className="flex-1 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer">
+                      <Upload className="w-3.5 h-3.5 text-[#c5a059]" /> Upload
+                      <input type="file" accept="image/*" onChange={handleFileUpload('logoUrl')} className="hidden" />
+                    </label>
+                  </div>
                 </div>
 
                 {/* Footer Logo */}
@@ -405,10 +416,19 @@ export const SettingsModule: React.FC = () => {
                     onChange={e => handleChange('footerLogoUrl', e.target.value)}
                     className="w-full bg-[#111] border border-white/10 rounded-lg px-2.5 py-1.5 text-[11px] text-white"
                   />
-                  <label className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer">
-                    <Upload className="w-3.5 h-3.5 text-[#c5a059]" /> Upload File
-                    <input type="file" accept="image/*" onChange={handleFileUpload('footerLogoUrl')} className="hidden" />
-                  </label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setMediaPickerTargetField('footerLogoUrl')}
+                      className="flex-1 py-1.5 bg-[#c5a059] hover:bg-[#d4b578] text-black font-bold rounded-lg text-xs flex items-center justify-center gap-1 cursor-pointer"
+                    >
+                      <ImageIcon className="w-3.5 h-3.5" /> Media Library
+                    </button>
+                    <label className="flex-1 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer">
+                      <Upload className="w-3.5 h-3.5 text-[#c5a059]" /> Upload
+                      <input type="file" accept="image/*" onChange={handleFileUpload('footerLogoUrl')} className="hidden" />
+                    </label>
+                  </div>
                 </div>
 
                 {/* Favicon */}
@@ -437,10 +457,19 @@ export const SettingsModule: React.FC = () => {
                     onChange={e => handleChange('faviconUrl', e.target.value)}
                     className="w-full bg-[#111] border border-white/10 rounded-lg px-2.5 py-1.5 text-[11px] text-white"
                   />
-                  <label className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer">
-                    <Upload className="w-3.5 h-3.5 text-[#c5a059]" /> Upload File
-                    <input type="file" accept="image/x-icon,image/png" onChange={handleFileUpload('faviconUrl')} className="hidden" />
-                  </label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setMediaPickerTargetField('faviconUrl')}
+                      className="flex-1 py-1.5 bg-[#c5a059] hover:bg-[#d4b578] text-black font-bold rounded-lg text-xs flex items-center justify-center gap-1 cursor-pointer"
+                    >
+                      <ImageIcon className="w-3.5 h-3.5" /> Media Library
+                    </button>
+                    <label className="flex-1 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer">
+                      <Upload className="w-3.5 h-3.5 text-[#c5a059]" /> Upload
+                      <input type="file" accept="image/x-icon,image/png" onChange={handleFileUpload('faviconUrl')} className="hidden" />
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1218,7 +1247,7 @@ export const SettingsModule: React.FC = () => {
                 System Operation Modes & Security Toggles
               </h3>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-[#181818] border border-white/10 rounded-xl p-4 flex items-center justify-between">
                   <div>
                     <span className="text-xs font-bold text-white block">Maintenance Mode</span>
@@ -1232,6 +1261,22 @@ export const SettingsModule: React.FC = () => {
                     }`}
                   >
                     {form.maintenanceMode ? 'Active' : 'Off'}
+                  </button>
+                </div>
+
+                <div className="bg-[#181818] border border-white/10 rounded-xl p-4 flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-bold text-white block">Coming Soon Mode</span>
+                    <span className="text-[11px] text-white/50">Shows coming soon splash screen</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleChange('comingSoonMode', !form.comingSoonMode)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer ${
+                      form.comingSoonMode ? 'bg-indigo-500/20 text-indigo-400' : 'bg-white/5 text-white/40'
+                    }`}
+                  >
+                    {form.comingSoonMode ? 'Active' : 'Off'}
                   </button>
                 </div>
 
@@ -1329,6 +1374,19 @@ export const SettingsModule: React.FC = () => {
           </div>
         )}
       </form>
+
+      {/* Media Picker Modal for Global Settings */}
+      <MediaPickerModal
+        isOpen={!!mediaPickerTargetField}
+        onClose={() => setMediaPickerTargetField(null)}
+        onSelectImage={(url) => {
+          if (mediaPickerTargetField) {
+            handleChange(mediaPickerTargetField, url);
+          }
+        }}
+        allowedCategory="logos"
+        title="Select Asset from Media Library"
+      />
     </div>
   );
 };

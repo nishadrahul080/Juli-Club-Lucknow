@@ -3,7 +3,7 @@ import { LocationPageInfo, CompanionProfile } from '../types';
 import { ProfileCard } from './ProfileCard';
 import { ShieldCheck, CheckCircle2, Truck, MapPin, Star, ArrowLeft, ChevronRight, Phone } from 'lucide-react';
 import { WhatsAppIcon } from './WhatsAppIcon';
-import { COMPANION_PROFILES } from '../data/mockData';
+import { useCMS } from '../context/CMSContext';
 import { PublicSectionRenderer } from './PublicSectionRenderer';
 
 interface LocationPageViewProps {
@@ -23,18 +23,21 @@ export const LocationPageView: React.FC<LocationPageViewProps> = ({
   onOpenGeneralBooking,
   onSelectProfileModal,
 }) => {
+  const { cmsData, isPreviewMode } = useCMS();
+  const profilesList = (cmsData.profiles || []).filter(p => isPreviewMode || p.isActive !== false);
+
   // Filter companion profiles for this specific location
   const areaProfiles = useMemo(() => {
-    const exactMatches = COMPANION_PROFILES.filter(
+    const exactMatches = profilesList.filter(
       (p) => p.location.toLowerCase() === locationData.areaName.toLowerCase()
     );
     if (exactMatches.length >= 3) return exactMatches;
     // Fill up with other top verified profiles in Lucknow with pickup
-    const remaining = COMPANION_PROFILES.filter(
+    const remaining = profilesList.filter(
       (p) => p.location.toLowerCase() !== locationData.areaName.toLowerCase()
     );
     return [...exactMatches, ...remaining].slice(0, 8);
-  }, [locationData]);
+  }, [locationData, profilesList]);
 
   const whatsappMessage = encodeURIComponent(
     `Hi Juli Club, I want to book a Call Girl Service in ${locationData.areaName} Lucknow with Cash on Delivery.`

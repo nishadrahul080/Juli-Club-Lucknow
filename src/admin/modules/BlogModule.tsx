@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useCMS } from '../../context/CMSContext';
 import { BlogPost, PublishStatus } from '../../types';
+import { MediaPickerModal } from '../media/components/MediaPickerModal';
 import {
   FileText,
   Plus,
@@ -47,6 +48,7 @@ export const BlogModule: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'content' | 'seo' | 'faq' | 'linking'>('content');
   const [editorMode, setEditorMode] = useState<'edit' | 'preview'>('edit');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isMediaPickerOpen, setIsMediaPickerOpen] = useState<boolean>(false);
 
   const categories = ['All', 'Companion Guide', 'Lucknow Lifestyle', 'Escort Tips', 'Nightlife', 'VIP Escorts'];
 
@@ -596,15 +598,25 @@ export const BlogModule: React.FC = () => {
                             className="w-24 h-24 rounded-xl object-cover border border-white/15 shrink-0"
                           />
                           <div className="flex-1 min-w-0 space-y-2 w-full">
-                            <input
-                              type="text"
-                              value={editingBlog.image || ''}
-                              onChange={e => setEditingBlog({ ...editingBlog, image: e.target.value })}
-                              placeholder="https://..."
-                              className="w-full bg-[#141414] border border-white/15 rounded-lg px-3 py-2 text-xs text-white focus:border-[#c5a059] outline-none font-mono"
-                            />
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="text"
+                                value={editingBlog.image || ''}
+                                onChange={e => setEditingBlog({ ...editingBlog, image: e.target.value })}
+                                placeholder="https://..."
+                                className="flex-1 bg-[#141414] border border-white/15 rounded-lg px-3 py-2 text-xs text-white focus:border-[#c5a059] outline-none font-mono"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setIsMediaPickerOpen(true)}
+                                className="px-3 py-2 bg-[#c5a059] hover:bg-[#d4b578] text-black font-bold text-xs rounded-lg transition-colors shrink-0 flex items-center gap-1.5 cursor-pointer"
+                              >
+                                <ImageIcon className="w-3.5 h-3.5" />
+                                Browse Media
+                              </button>
+                            </div>
                             <p className="text-[11px] text-white/50">
-                              Direct image URLs supported. Select from Media Library or paste image link.
+                              Select from Media Library or paste a direct image URL.
                             </p>
                           </div>
                         </div>
@@ -1010,6 +1022,19 @@ export const BlogModule: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Media Picker Modal */}
+      <MediaPickerModal
+        isOpen={isMediaPickerOpen}
+        onClose={() => setIsMediaPickerOpen(false)}
+        onSelectImage={(url) => {
+          if (editingBlog) {
+            setEditingBlog({ ...editingBlog, image: url });
+          }
+        }}
+        allowedCategory="blog"
+        title="Select Blog Featured Image"
+      />
     </div>
   );
 };

@@ -266,7 +266,7 @@ export interface RedirectRuleRow {
   id: string;
   from_slug: string;
   to_target: string;
-  status_code: 301 | 302;
+  status_code: 301 | 302 | 307 | 410;
   is_active: boolean;
   created_at?: string;
 }

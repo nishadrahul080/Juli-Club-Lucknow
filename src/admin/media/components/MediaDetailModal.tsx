@@ -37,16 +37,22 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
   if (!isOpen || !item) return null;
 
   const [copied, setCopied] = useState<boolean>(false);
+  const [filenameInput, setFilenameInput] = useState<string>(item.filename || '');
   const [titleInput, setTitleInput] = useState<string>(item.title || '');
   const [altInput, setAltInput] = useState<string>(item.altText || '');
+  const [captionInput, setCaptionInput] = useState<string>(item.caption || '');
+  const [descriptionInput, setDescriptionInput] = useState<string>(item.description || '');
   const [folderInput, setFolderInput] = useState<MediaCategory>(item.folder || 'uncategorized');
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const replaceInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    setFilenameInput(item.filename || '');
     setTitleInput(item.title || '');
     setAltInput(item.altText || '');
+    setCaptionInput(item.caption || '');
+    setDescriptionInput(item.description || '');
     setFolderInput(item.folder || 'uncategorized');
   }, [item]);
 
@@ -60,8 +66,11 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
     setIsSaving(true);
     try {
       await onUpdate(item.id, {
+        filename: filenameInput,
         title: titleInput,
         altText: altInput,
+        caption: captionInput,
+        description: descriptionInput,
         folder: folderInput
       });
     } finally {
@@ -219,42 +228,80 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
               </div>
             </div>
 
-            {/* Editable Form Fields */}
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-white/70 uppercase tracking-wider block">
+            {/* Editable Form Fields & Alt Tag Manager */}
+            <div className="space-y-3.5">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-white/70 uppercase tracking-wider block">
+                  File Name
+                </label>
+                <input
+                  type="text"
+                  value={filenameInput}
+                  onChange={(e) => setFilenameInput(e.target.value)}
+                  className="w-full bg-[#1c1c1c] border border-white/10 focus:border-[#c5a059] rounded-xl px-3 py-2 text-xs font-mono text-white outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-white/70 uppercase tracking-wider block">
                   Image Title
                 </label>
                 <input
                   type="text"
                   value={titleInput}
                   onChange={(e) => setTitleInput(e.target.value)}
-                  className="w-full bg-[#1c1c1c] border border-white/10 focus:border-[#c5a059] rounded-xl px-3.5 py-2.5 text-xs text-white outline-none"
+                  className="w-full bg-[#1c1c1c] border border-white/10 focus:border-[#c5a059] rounded-xl px-3 py-2 text-xs text-white outline-none"
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-white/70 uppercase tracking-wider block">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-white/70 uppercase tracking-wider block">
                   Alt Text (SEO Description)
                 </label>
                 <input
                   type="text"
                   value={altInput}
                   onChange={(e) => setAltInput(e.target.value)}
-                  placeholder="Describe image for search engines"
-                  className="w-full bg-[#1c1c1c] border border-white/10 focus:border-[#c5a059] rounded-xl px-3.5 py-2.5 text-xs text-white outline-none"
+                  placeholder="Describe image for search engines & accessibility"
+                  className="w-full bg-[#1c1c1c] border border-white/10 focus:border-[#c5a059] rounded-xl px-3 py-2 text-xs text-white outline-none"
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-white/70 uppercase tracking-wider block">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-white/70 uppercase tracking-wider block">
+                  Caption
+                </label>
+                <input
+                  type="text"
+                  value={captionInput}
+                  onChange={(e) => setCaptionInput(e.target.value)}
+                  placeholder="Short visible image caption"
+                  className="w-full bg-[#1c1c1c] border border-white/10 focus:border-[#c5a059] rounded-xl px-3 py-2 text-xs text-white outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-white/70 uppercase tracking-wider block">
+                  Description
+                </label>
+                <textarea
+                  rows={2}
+                  value={descriptionInput}
+                  onChange={(e) => setDescriptionInput(e.target.value)}
+                  placeholder="Extended description or notes about asset..."
+                  className="w-full bg-[#1c1c1c] border border-white/10 focus:border-[#c5a059] rounded-xl p-2.5 text-xs text-white outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-white/70 uppercase tracking-wider block">
                   Category Folder
                 </label>
                 <div className="relative">
                   <select
                     value={folderInput}
                     onChange={(e) => setFolderInput(e.target.value as MediaCategory)}
-                    className="w-full bg-[#1c1c1c] border border-white/10 focus:border-[#c5a059] text-xs text-white rounded-xl px-3.5 py-2.5 outline-none cursor-pointer pr-10"
+                    className="w-full bg-[#1c1c1c] border border-white/10 focus:border-[#c5a059] text-xs text-white rounded-xl px-3 py-2 outline-none cursor-pointer pr-10"
                   >
                     <option value="profiles">profiles/</option>
                     <option value="gallery">gallery/</option>
@@ -262,16 +309,17 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
                     <option value="logos">logos/</option>
                     <option value="seo">seo/</option>
                     <option value="location-pages">location-pages/</option>
+                    <option value="banners">banners/</option>
                     <option value="uncategorized">uncategorized/</option>
                   </select>
-                  <Folder className="w-4 h-4 text-white/40 absolute right-3 top-3 pointer-events-none" />
+                  <Folder className="w-4 h-4 text-white/40 absolute right-3 top-2.5 pointer-events-none" />
                 </div>
               </div>
 
               <button
                 onClick={handleSaveMetadata}
                 disabled={isSaving}
-                className="w-full py-2.5 bg-[#c5a059] hover:bg-[#d4b578] text-black font-bold text-xs uppercase tracking-wider rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer mt-2"
+                className="w-full py-2.5 bg-[#c5a059] hover:bg-[#d4b578] text-black font-bold text-xs uppercase tracking-wider rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer mt-2 shadow-lg"
               >
                 <Save className="w-4 h-4" />
                 <span>{isSaving ? 'Saving Changes...' : 'Save Image Details'}</span>

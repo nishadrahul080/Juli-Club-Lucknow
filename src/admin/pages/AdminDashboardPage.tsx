@@ -9,8 +9,15 @@ import { LocationModule } from '../modules/LocationModule';
 import { BlogModule } from '../modules/BlogModule';
 import { SeoModule } from '../modules/SeoModule';
 import { PlaceholderModule } from '../modules/PlaceholderModule';
+import { ReviewsModule } from '../modules/ReviewsModule';
+import { FaqModule } from '../modules/FaqModule';
 import { SettingsModule } from '../modules/SettingsModule';
 import { SystemModule } from '../modules/SystemModule';
+import { UserManagementModule } from '../modules/UserManagementModule';
+import { ActivityLogsModule } from '../modules/ActivityLogsModule';
+import { BackupRestoreModule } from '../modules/BackupRestoreModule';
+import { VisualBuilderModule } from '../modules/VisualBuilderModule';
+import { WhiteLabelModule } from '../modules/WhiteLabelModule';
 import {
   Home,
   MapPin,
@@ -48,6 +55,9 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onUnauth
       case 'homepage':
         return <HomepageModule />;
 
+      case 'visual-builder':
+        return <VisualBuilderModule />;
+
       case 'location-pages':
         return <LocationModule />;
 
@@ -64,30 +74,28 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onUnauth
         return <SeoModule />;
 
       case 'reviews':
-        return (
-          <PlaceholderModule
-            title="Client Reviews & Testimonials"
-            description="Moderate, approve, and showcase client feedback, star ratings, and verified booking testimonials."
-            category="Client Feedback"
-            icon={<Star className="w-6 h-6" />}
-          />
-        );
+        return <ReviewsModule />;
 
       case 'faq':
-        return (
-          <PlaceholderModule
-            title="FAQ Accordion & Schema Manager"
-            description="Edit structured frequently asked questions to boost Google rich snippets and answer client queries."
-            category="Search Schema"
-            icon={<HelpCircle className="w-6 h-6" />}
-          />
-        );
+        return <FaqModule />;
+
+      case 'white-label':
+        return <WhiteLabelModule />;
 
       case 'settings':
         return <SettingsModule />;
 
       case 'system':
         return <SystemModule />;
+
+      case 'users':
+        return <UserManagementModule />;
+
+      case 'activity-logs':
+        return <ActivityLogsModule />;
+
+      case 'backup-restore':
+        return <BackupRestoreModule />;
 
       default:
         return <DashboardModule onNavigateTab={setActiveTab} />;

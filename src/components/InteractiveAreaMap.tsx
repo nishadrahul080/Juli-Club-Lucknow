@@ -1,7 +1,7 @@
 import React from 'react';
-import { LucknowArea } from '../types';
+import { LucknowArea, LocationPageInfo } from '../types';
 import { MapPin, Navigation } from 'lucide-react';
-import { getLocationByArea } from '../data/locationData';
+import { useCMS } from '../context/CMSContext';
 
 interface InteractiveAreaMapProps {
   selectedArea: LucknowArea;
@@ -9,21 +9,14 @@ interface InteractiveAreaMapProps {
   onNavigateLocation?: (slug: string) => void;
 }
 
-const LUCKNOW_ZONES: { name: LucknowArea; ads: number; desc: string; icon: string; slug: string }[] = [
-  { name: 'Gomti Nagar', ads: 1450, desc: '5-Star Hotels, Hyatt, Taj Mahal & Gomti Riverfront Outcalls', icon: '🏨', slug: 'call-girls-gomti-nagar' },
-  { name: 'Hazratganj', ads: 1200, desc: 'Heart of Lucknow city, Premium Executive Hotel Delivery', icon: '🏛️', slug: 'call-girls-hazratganj' },
-  { name: 'Alambagh', ads: 850, desc: 'Quick 20-min driver dispatch, VIP Hotel Companions', icon: '🚕', slug: 'call-girls-alambagh' },
-  { name: 'Indira Nagar', ads: 920, desc: 'Quiet Private Residence & Suite Companionship', icon: '🏡', slug: 'call-girls-indira-nagar' },
-  { name: 'Mahanagar', ads: 780, desc: 'Sophisticated Luxury Apartments & Spa Services', icon: '✨', slug: 'call-girls-mahanagar' },
-  { name: 'Charbagh', ads: 650, desc: 'Station Nearby Hotels & Express 30-min Pickup', icon: '🚉', slug: 'call-girls-charbagh' },
-  { name: 'Sushant Golf City', ads: 890, desc: 'Lulu Mall & Ansal API Luxury Villas & Resort Escorts', icon: '⛳', slug: 'call-girls-sushant-golf-city' },
-];
-
 export const InteractiveAreaMap: React.FC<InteractiveAreaMapProps> = ({
   selectedArea,
   onSelectArea,
   onNavigateLocation,
 }) => {
+  const { cmsData } = useCMS();
+  const locationPages = (Object.values(cmsData.locations || {}) as unknown as LocationPageInfo[]);
+
   return (
     <section className="py-16 bg-[#0a0a0a] text-[#e0e0e0] border-b border-white/10" id="locations">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
@@ -40,15 +33,18 @@ export const InteractiveAreaMap: React.FC<InteractiveAreaMapProps> = ({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          {LUCKNOW_ZONES.map((zone) => {
-            const isSelected = selectedArea === zone.name;
+          {locationPages.map((loc) => {
+            const isSelected = selectedArea === loc.areaName;
+            const profileCount = (cmsData.profiles || []).filter(p => p.location.toLowerCase() === loc.areaName.toLowerCase()).length;
+            const displayAds = profileCount > 0 ? profileCount * 120 + 250 : 850;
+
             return (
               <button
-                key={zone.name}
+                key={loc.slug}
                 onClick={() => {
-                  onSelectArea(zone.name);
+                  onSelectArea(loc.areaName as LucknowArea);
                   if (onNavigateLocation) {
-                    onNavigateLocation(zone.slug);
+                    onNavigateLocation(loc.slug);
                   }
                 }}
                 className={`p-5 rounded-sm text-left transition-all border flex flex-col justify-between group cursor-pointer ${
@@ -59,16 +55,18 @@ export const InteractiveAreaMap: React.FC<InteractiveAreaMapProps> = ({
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-2xl">{zone.icon}</span>
+                    <span className="text-2xl">🏨</span>
                     <span className="text-[9px] font-bold px-2 py-0.5 rounded-sm bg-[#0a0a0a] text-[#c5a059] border border-white/10 uppercase tracking-wider">
-                      {zone.ads} Active
+                      {displayAds} Active
                     </span>
                   </div>
                   <h4 className="font-serif font-bold text-base text-[#e0e0e0] group-hover:text-[#c5a059] transition-colors flex items-center gap-1">
                     <MapPin className="w-3.5 h-3.5 text-[#c5a059]" />
-                    {zone.name} Call Girls
+                    {loc.areaName} Call Girls
                   </h4>
-                  <p className="text-[11px] text-white/60 mt-1 leading-relaxed font-sans">{zone.desc}</p>
+                  <p className="text-[11px] text-white/60 mt-1 leading-relaxed font-sans line-clamp-2">
+                    {loc.intro || `${loc.areaName} VIP companions with 100% Cash on Delivery and free pickup.`}
+                  </p>
                 </div>
 
                 <div className="pt-3 mt-4 border-t border-white/5 flex items-center justify-between text-[11px] font-sans">

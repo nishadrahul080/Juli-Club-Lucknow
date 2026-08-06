@@ -50,6 +50,7 @@ export function useMediaLibrary(initialCategory: MediaCategory | 'all' = 'all') 
       logos: 0,
       seo: 0,
       'location-pages': 0,
+      banners: 0,
       uncategorized: 0
     };
 

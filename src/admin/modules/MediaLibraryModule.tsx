@@ -164,6 +164,7 @@ export const MediaLibraryModule: React.FC = () => {
               <option value="logos">logos/ ({folderCounts.logos || 0})</option>
               <option value="seo">seo/ ({folderCounts.seo || 0})</option>
               <option value="location-pages">location-pages/ ({folderCounts['location-pages'] || 0})</option>
+              <option value="banners">banners/ ({folderCounts.banners || 0})</option>
               <option value="uncategorized">uncategorized/ ({folderCounts.uncategorized || 0})</option>
             </select>
           </div>

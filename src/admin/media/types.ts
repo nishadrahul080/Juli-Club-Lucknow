@@ -2,9 +2,12 @@ export type MediaCategory =
   | 'profiles'
   | 'gallery'
   | 'blog'
+  | 'blogs'
   | 'logos'
+  | 'logo'
   | 'seo'
   | 'location-pages'
+  | 'banners'
   | 'uncategorized';
 
 export type AllowedMimeType =
@@ -25,6 +28,8 @@ export interface MediaItem {
   originalName: string;
   title: string;
   altText?: string;
+  caption?: string;
+  description?: string;
   url: string; // Base64 Data URL, Object URL, or external URL
   folder: MediaCategory;
   mimeType: AllowedMimeType | string;

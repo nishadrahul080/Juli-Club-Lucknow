@@ -12,6 +12,9 @@ import { ReviewsSection } from './components/ReviewsSection';
 import { FAQSection } from './components/FAQSection';
 import { Footer } from './components/Footer';
 import { LocationPageView } from './components/LocationPageView';
+import { BlogSection } from './components/BlogSection';
+import { BlogPageView } from './components/BlogPageView';
+import { NotFoundPageView } from './components/NotFoundPageView';
 import { CMSProvider, useCMS } from './context/CMSContext';
 import { AuthProvider } from './admin/context/AuthContext';
 import { AdminLoginPage } from './admin/pages/AdminLoginPage';
@@ -148,6 +151,20 @@ function MainApp() {
     return cmsData.locations[currentSlug] || null;
   }, [currentSlug, cmsData.locations]);
 
+  // Active Blog Post if on blog article page
+  const activeBlogPost = useMemo(() => {
+    if (!currentSlug) return null;
+    const cleanSlug = currentSlug.replace(/^blog\//, '');
+    return (cmsData.blogs || []).find(b => b.slug === cleanSlug || b.slug === currentSlug) || null;
+  }, [currentSlug, cmsData.blogs]);
+
+  const handleNavigateBlogArticle = (slug: string) => {
+    setCurrentSlug(`blog/${slug}`);
+    setActiveProfileModal(null);
+    window.history.pushState({}, '', `/blog/${slug}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Filter & Sort Profiles from CMS Store
   const filteredProfiles = useMemo(() => {
     return cmsData.profiles.filter((profile) => {
@@ -248,8 +265,15 @@ function MainApp() {
         currentSlug={currentSlug}
       />
 
-      {/* RENDER LOCATION PAGE IF SLUG MATCHES LOCATION DATA */}
-      {activeLocationData ? (
+      {/* RENDER BLOG ARTICLE PAGE IF SLUG MATCHES BLOG POST */}
+      {activeBlogPost ? (
+        <BlogPageView
+          post={activeBlogPost}
+          onNavigateHome={handleNavigateHome}
+          onNavigateBlogList={handleNavigateHome}
+          onNavigateBlogArticle={handleNavigateBlogArticle}
+        />
+      ) : activeLocationData ? (
         <LocationPageView
           locationData={activeLocationData}
           onNavigateHome={handleNavigateHome}
@@ -257,6 +281,15 @@ function MainApp() {
           onOpenBookingForProfile={handleOpenBookingForProfile}
           onOpenGeneralBooking={handleOpenGeneralBooking}
           onSelectProfileModal={setActiveProfileModal}
+        />
+      ) : currentSlug ? (
+        <NotFoundPageView
+          attemptedSlug={currentSlug}
+          onNavigateHome={handleNavigateHome}
+          onNavigateLocation={handleNavigateLocation}
+          onNavigateBlogArticle={handleNavigateBlogArticle}
+          onSelectProfileModal={setActiveProfileModal}
+          onOpenBookingForProfile={handleOpenBookingForProfile}
         />
       ) : (
         <>
@@ -360,6 +393,9 @@ function MainApp() {
 
             {/* Detailed SEO Content Blocks */}
             <ContentBlocks />
+
+            {/* Blog Section */}
+            <BlogSection onNavigateBlogArticle={handleNavigateBlogArticle} />
 
             {/* Reviews Section */}
             <ReviewsSection />

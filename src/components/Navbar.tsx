@@ -3,6 +3,7 @@ import { Search, ShieldCheck, Menu, X, Mail, ChevronDown, MapPin } from 'lucide-
 import { LOCATION_PAGES } from '../data/locationData';
 import { WhatsAppIcon } from './WhatsAppIcon';
 import { useCMS } from '../context/CMSContext';
+import { LocationPageInfo } from '../types';
 
 interface NavbarProps {
   selectedCity: string;
@@ -128,7 +129,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <span>Select Area Page</span>
                     <span className="w-1.5 h-1.5 rounded-full bg-[#c5a059] animate-ping"></span>
                   </div>
-                  {LOCATION_PAGES.map((loc) => {
+                  {(Object.values(cmsData.locations || {}) as LocationPageInfo[]).map((loc) => {
                     const isActive = currentSlug === loc.slug;
                     return (
                       <button

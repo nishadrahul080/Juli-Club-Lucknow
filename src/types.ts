@@ -80,6 +80,8 @@ export interface CompanionProfile {
   updatedAt?: string;
 }
 
+export type EscortProfile = CompanionProfile;
+
 export interface Review {
   id: string;
   clientName: string;
@@ -211,9 +213,19 @@ export interface RedirectRule {
   toTarget: string;
   oldSlug?: string;
   newSlug?: string;
-  statusCode: 301 | 302;
+  statusCode: 301 | 302 | 307 | 410;
   isActive: boolean;
   createdAt?: string;
+}
+
+export interface Log404Item {
+  id: string;
+  url: string;
+  hitCount: number;
+  lastVisited: string;
+  referrer?: string;
+  userAgent?: string;
+  suggestedRedirect?: string;
 }
 
 export interface LocationPageInfo {

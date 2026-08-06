@@ -1,6 +1,7 @@
 import React from 'react';
 import { ShieldCheck, CheckCircle2, Truck } from 'lucide-react';
 import { WhatsAppIcon } from './WhatsAppIcon';
+import { useCMS } from '../context/CMSContext';
 
 interface HeroSectionProps {
   onOpenBooking?: () => void;
@@ -8,6 +9,15 @@ interface HeroSectionProps {
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ selectedCity }) => {
+  const { cmsData } = useCMS();
+  const settings = cmsData.settings;
+
+  const heroHeading = settings.heroHeading || 'Exclusive Call Girl Service Lucknow';
+  const heroSubheading = settings.heroSubheading || 'Welcome to Juli Club, Lucknow’s premier VIP companion directory. Enjoy verified independent models, college companions, and charming escorts with 100% Cash on Delivery (COD), zero advance required, and free private cab pickup.';
+  const badgeText = settings.badgeText || `100% Genuine & Verified Companions (${selectedCity})`;
+  const whatsappNumber = settings.whatsappNumber || '918726179837';
+  const whatsappMessage = settings.whatsappMessage || 'Hi Juli Club, I want to book a Call Girl Service Lucknow with Cash on Delivery.';
+
   return (
     <section className="relative overflow-hidden bg-[#0d0d0d] py-10 sm:py-16 md:py-24 text-[#e0e0e0] border-b border-white/10">
       {/* Background radial gold glow */}
@@ -17,17 +27,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ selectedCity }) => {
         {/* Eyebrow badge */}
         <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-[#c5a059]/10 border border-[#c5a059]/30 text-[#c5a059] text-[10px] sm:text-xs font-bold uppercase tracking-wider sm:tracking-[0.2em] shadow-sm max-w-full text-center leading-tight">
           <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#c5a059] shrink-0" />
-          <span>100% Genuine & Verified Companions ({selectedCity})</span>
+          <span>{badgeText}</span>
         </div>
 
         {/* Main H1 Title */}
         <h1 className="text-2xl sm:text-5xl md:text-6xl font-serif text-[#e0e0e0] leading-tight font-bold tracking-tight">
-          Exclusive <span className="text-[#c5a059] font-serif italic">Call Girl Service Lucknow</span>
+          {heroHeading}
         </h1>
 
         {/* Short engaging introduction paragraph */}
         <p className="text-xs sm:text-base md:text-lg text-white/80 max-w-2xl mx-auto leading-relaxed font-sans">
-          Welcome to <strong className="text-[#c5a059]">Juli Club</strong>, Lucknow’s premier VIP companion directory. Enjoy verified independent models, college companions, and charming escorts with <strong>100% Cash on Delivery (COD)</strong>, zero advance required, and free private cab pickup.
+          {heroSubheading}
         </p>
 
         {/* Bullet Guarantees / Trust Badges */}
@@ -49,7 +59,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ selectedCity }) => {
         {/* Single Centered WhatsApp CTA Button */}
         <div className="pt-2 sm:pt-3 flex justify-center items-center">
           <a
-            href="https://wa.me/918726179837?text=Hi%20Juli%20Club%2C%20I%20want%20to%20book%20a%20Call%20Girl%20Service%20Lucknow%20with%20Cash%20on%20Delivery."
+            href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="group inline-flex items-center justify-center gap-2 sm:gap-2.5 px-5 py-2.5 sm:px-7 sm:py-3.5 bg-[#25D366] hover:bg-[#22c35e] text-white font-bold rounded-md text-xs sm:text-sm uppercase tracking-wider shadow-xl shadow-green-950/50 hover:shadow-[0_0_25px_rgba(37,211,102,0.4)] border border-emerald-400/30 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.02] cursor-pointer w-auto mx-auto whitespace-nowrap shrink-0"

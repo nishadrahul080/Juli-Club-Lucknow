@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { CLIENT_REVIEWS } from '../data/mockData';
+import { useCMS } from '../context/CMSContext';
 import { Review } from '../types';
 import { Star, ShieldCheck, MessageSquarePlus, CheckCircle2, User } from 'lucide-react';
 
 export const ReviewsSection: React.FC = () => {
-  const [reviews, setReviews] = useState<Review[]>(CLIENT_REVIEWS);
-  const [newReview, setNewReview] = useState({ clientName: '', profileName: 'Aroohii Sharma', rating: 5, comment: '', location: 'Gomti Nagar' });
+  const { cmsData, updateReviews } = useCMS();
+  const reviews = cmsData.reviews || [];
+
+  const [newReview, setNewReview] = useState({ clientName: '', profileName: cmsData.profiles[0]?.name || 'Aroohii Sharma', rating: 5, comment: '', location: 'Gomti Nagar' });
   const [showAddReview, setShowAddReview] = useState(false);
 
   const handleAddReview = (e: React.FormEvent) => {
@@ -17,14 +19,14 @@ export const ReviewsSection: React.FC = () => {
       clientName: newReview.clientName,
       profileName: newReview.profileName,
       rating: Number(newReview.rating),
-      date: 'Just now',
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       comment: newReview.comment,
-      location: newReview.location + ', Lucknow',
+      location: newReview.location.includes('Lucknow') ? newReview.location : newReview.location + ', Lucknow',
       verifiedBooking: true,
     };
 
-    setReviews([rev, ...reviews]);
-    setNewReview({ clientName: '', profileName: 'Aroohii Sharma', rating: 5, comment: '', location: 'Gomti Nagar' });
+    updateReviews([rev, ...reviews]);
+    setNewReview({ clientName: '', profileName: cmsData.profiles[0]?.name || 'Aroohii Sharma', rating: 5, comment: '', location: 'Gomti Nagar' });
     setShowAddReview(false);
   };
 

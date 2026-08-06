@@ -385,7 +385,7 @@ export class MediaStorageService {
   /**
    * Rename or update metadata of a media item
    */
-  public async updateItem(id: string, updates: Partial<Pick<MediaItem, 'title' | 'altText' | 'folder' | 'filename'>>): Promise<MediaItem> {
+  public async updateItem(id: string, updates: Partial<Pick<MediaItem, 'title' | 'altText' | 'caption' | 'description' | 'folder' | 'filename'>>): Promise<MediaItem> {
     const items = await this.getMediaItems();
     const index = items.findIndex(i => i.id === id);
     if (index === -1) {

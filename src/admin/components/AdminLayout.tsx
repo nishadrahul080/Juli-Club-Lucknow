@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { CMSModuleId, hasPermission, UserRole } from '../utils/permissions';
 import {
   LayoutDashboard,
   Home,
@@ -17,7 +18,12 @@ import {
   X,
   ExternalLink,
   ChevronRight,
-  FileText
+  FileText,
+  UserCheck,
+  Activity,
+  Database,
+  Layers,
+  Globe
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -30,19 +36,32 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ activeTab, onSelectTab
   const { username, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
-  const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
-    { id: 'homepage', label: 'Homepage', icon: <Home className="w-4 h-4" /> },
-    { id: 'location-pages', label: 'Location Pages', icon: <MapPin className="w-4 h-4" /> },
-    { id: 'profiles', label: 'Profiles', icon: <Users className="w-4 h-4" /> },
-    { id: 'blogs', label: 'Blog CMS', icon: <FileText className="w-4 h-4" /> },
-    { id: 'media-library', label: 'Media Library', icon: <ImageIcon className="w-4 h-4" /> },
-    { id: 'seo', label: 'Enterprise SEO', icon: <Search className="w-4 h-4" /> },
-    { id: 'reviews', label: 'Reviews', icon: <Star className="w-4 h-4" /> },
-    { id: 'faq', label: 'FAQ', icon: <HelpCircle className="w-4 h-4" /> },
-    { id: 'settings', label: 'Settings', icon: <Settings className="w-4 h-4" /> },
-    { id: 'system', label: 'System', icon: <Server className="w-4 h-4" /> },
+  // Derive role based on username or default Super Admin
+  const userRole: UserRole = username === 'seo_manager' ? 'SEO Manager' :
+    username === 'content_writer' ? 'Content Writer' :
+    username === 'editor_lucknow' ? 'Editor' : 'Super Admin';
+
+  const allNavItems = [
+    { id: 'dashboard' as CMSModuleId, label: 'Dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
+    { id: 'homepage' as CMSModuleId, label: 'Homepage', icon: <Home className="w-4 h-4" /> },
+    { id: 'visual-builder' as CMSModuleId, label: 'Visual Builder', icon: <Layers className="w-4 h-4" /> },
+    { id: 'location-pages' as CMSModuleId, label: 'Location Pages', icon: <MapPin className="w-4 h-4" /> },
+    { id: 'profiles' as CMSModuleId, label: 'Profiles', icon: <Users className="w-4 h-4" /> },
+    { id: 'blogs' as CMSModuleId, label: 'Blog CMS', icon: <FileText className="w-4 h-4" /> },
+    { id: 'media-library' as CMSModuleId, label: 'Media Library', icon: <ImageIcon className="w-4 h-4" /> },
+    { id: 'seo' as CMSModuleId, label: 'Enterprise SEO', icon: <Search className="w-4 h-4" /> },
+    { id: 'reviews' as CMSModuleId, label: 'Reviews', icon: <Star className="w-4 h-4" /> },
+    { id: 'faq' as CMSModuleId, label: 'FAQ', icon: <HelpCircle className="w-4 h-4" /> },
+    { id: 'white-label' as CMSModuleId, label: 'White Label CMS', icon: <Globe className="w-4 h-4" /> },
+    { id: 'users' as CMSModuleId, label: 'User Management', icon: <UserCheck className="w-4 h-4" /> },
+    { id: 'activity-logs' as CMSModuleId, label: 'Activity Logs', icon: <Activity className="w-4 h-4" /> },
+    { id: 'backup-restore' as CMSModuleId, label: 'Backup & Restore', icon: <Database className="w-4 h-4" /> },
+    { id: 'settings' as CMSModuleId, label: 'Settings', icon: <Settings className="w-4 h-4" /> },
+    { id: 'system' as CMSModuleId, label: 'System Health', icon: <Server className="w-4 h-4" /> },
   ];
+
+  // Filter items by permission
+  const navItems = allNavItems.filter(item => hasPermission(userRole, item.id));
 
   const activeItem = navItems.find((item) => item.id === activeTab) || navItems[0];
 

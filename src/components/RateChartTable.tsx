@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { COMPANION_PROFILES } from '../data/mockData';
+import { useCMS } from '../context/CMSContext';
 import { Phone, CheckCircle2, Search, Table, Sparkles } from 'lucide-react';
 import { WhatsAppIcon } from './WhatsAppIcon';
 
@@ -8,9 +8,12 @@ interface RateChartTableProps {
 }
 
 export const RateChartTable: React.FC<RateChartTableProps> = ({ onSelectCompanion }) => {
+  const { cmsData, isPreviewMode } = useCMS();
   const [filterText, setFilterText] = useState('');
 
-  const filtered = COMPANION_PROFILES.filter(
+  const profilesList = (cmsData.profiles || []).filter(p => isPreviewMode || p.isActive !== false);
+
+  const filtered = profilesList.filter(
     (p) =>
       p.name.toLowerCase().includes(filterText.toLowerCase()) ||
       p.category.toLowerCase().includes(filterText.toLowerCase()) ||
