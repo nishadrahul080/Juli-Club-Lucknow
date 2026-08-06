@@ -63,14 +63,6 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
     } catch (err) {
       console.error('[CMS Context Error - updateSettings]:', err);
-      setCmsData(prev => {
-        const nextData: CMSData = {
-          ...prev,
-          settings: { ...prev.settings, ...newSettings }
-        };
-        saveCMSData(nextData);
-        return nextData;
-      });
       throw err;
     }
   };
@@ -88,14 +80,6 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
     } catch (err) {
       console.error('[CMS Context Error - updateHomepage]:', err);
-      setCmsData(prev => {
-        const nextData: CMSData = {
-          ...prev,
-          homepage: { ...prev.homepage, ...newHomepage }
-        };
-        saveCMSData(nextData);
-        return nextData;
-      });
       throw err;
     }
   };
@@ -116,17 +100,6 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
     } catch (err) {
       console.error('[CMS Context Error - updateHomepageSections]:', err);
-      setCmsData(prev => {
-        const nextData: CMSData = {
-          ...prev,
-          homepage: {
-            ...prev.homepage,
-            sections: newSections
-          }
-        };
-        saveCMSData(nextData);
-        return nextData;
-      });
       throw err;
     }
   };
@@ -141,11 +114,6 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
     } catch (err) {
       console.error('[CMS Context Error - updateProfiles]:', err);
-      setCmsData(prev => {
-        const nextData: CMSData = { ...prev, profiles: newProfiles };
-        saveCMSData(nextData);
-        return nextData;
-      });
       throw err;
     }
   };
@@ -160,11 +128,6 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
     } catch (err) {
       console.error('[CMS Context Error - updateReviews]:', err);
-      setCmsData(prev => {
-        const nextData: CMSData = { ...prev, reviews: newReviews };
-        saveCMSData(nextData);
-        return nextData;
-      });
       throw err;
     }
   };
@@ -179,11 +142,6 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
     } catch (err) {
       console.error('[CMS Context Error - updateFAQs]:', err);
-      setCmsData(prev => {
-        const nextData: CMSData = { ...prev, faqs: newFAQs };
-        saveCMSData(nextData);
-        return nextData;
-      });
       throw err;
     }
   };
@@ -198,11 +156,6 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
     } catch (err) {
       console.error('[CMS Context Error - updateLocations]:', err);
-      setCmsData(prev => {
-        const nextData: CMSData = { ...prev, locations: newLocations };
-        saveCMSData(nextData);
-        return nextData;
-      });
       throw err;
     }
   };
@@ -223,17 +176,6 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
     } catch (err) {
       console.error('[CMS Context Error - addLocationPage]:', err);
-      setCmsData(prev => {
-        const nextData: CMSData = {
-          ...prev,
-          locations: {
-            ...prev.locations,
-            [location.slug]: location
-          }
-        };
-        saveCMSData(nextData);
-        return nextData;
-      });
       throw err;
     }
   };
@@ -250,13 +192,6 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
     } catch (err) {
       console.error('[CMS Context Error - deleteLocationPage]:', err);
-      setCmsData(prev => {
-        const nextLocs = { ...prev.locations };
-        delete nextLocs[slug];
-        const nextData: CMSData = { ...prev, locations: nextLocs };
-        saveCMSData(nextData);
-        return nextData;
-      });
       throw err;
     }
   };
@@ -271,11 +206,6 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
     } catch (err) {
       console.error('[CMS Context Error - updateRedirects]:', err);
-      setCmsData(prev => {
-        const nextData: CMSData = { ...prev, redirects: newRedirects };
-        saveCMSData(nextData);
-        return nextData;
-      });
       throw err;
     }
   };
@@ -290,11 +220,6 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
     } catch (err) {
       console.error('[CMS Context Error - updateBlogs]:', err);
-      setCmsData(prev => {
-        const nextData: CMSData = { ...prev, blogs: newBlogs };
-        saveCMSData(nextData);
-        return nextData;
-      });
       throw err;
     }
   };

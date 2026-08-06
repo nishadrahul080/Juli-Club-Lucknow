@@ -11,6 +11,7 @@ import {
   Sparkles,
   Search,
   CheckCircle2,
+  AlertCircle,
   Image as ImageIcon,
   Code,
   Globe,
@@ -31,6 +32,7 @@ export const HomepageModule: React.FC = () => {
     whatsappNumber: cmsData.settings.whatsappNumber || ''
   });
   const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [mediaPickerTarget, setMediaPickerTarget] = useState<'ogImage' | null>(null);
 
   const handleFieldChange = (field: keyof HomepageConfig, value: any) => {
@@ -43,14 +45,18 @@ export const HomepageModule: React.FC = () => {
 
   const handleSaveHomepage = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    setSaveSuccess(false);
+    setErrorMsg(null);
     try {
+      console.log('[HomepageModule] Initiating save for homepage & hero settings to database...');
       await updateHomepage(formData);
       await updateSettings(heroSettings);
+      console.log('[HomepageModule] Save successfully confirmed by database!');
       setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
+      setTimeout(() => setSaveSuccess(false), 5000);
     } catch (err: any) {
-      console.error('Error saving homepage:', err);
-      alert('Failed to save homepage: ' + (err.message || 'Error communicating with database'));
+      console.error('[HomepageModule Save Error]:', err);
+      setErrorMsg('Database Save Error: ' + (err.message || 'Error communicating with Supabase database'));
     }
   };
 
@@ -114,7 +120,14 @@ export const HomepageModule: React.FC = () => {
       {saveSuccess && (
         <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl text-xs font-bold flex items-center gap-2 animate-fadeIn">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
-          <span>Homepage changes successfully saved to CMS store!</span>
+          <span>Homepage changes successfully saved to Supabase database!</span>
+        </div>
+      )}
+
+      {errorMsg && (
+        <div className="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-xl text-xs font-bold flex items-center gap-2 animate-fadeIn">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span>{errorMsg}</span>
         </div>
       )}
 

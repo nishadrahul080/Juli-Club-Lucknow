@@ -284,55 +284,60 @@ export const SeoModule: React.FC = () => {
     }
   };
 
-  const handleSavePageSeo = (e: React.FormEvent) => {
+  const handleSavePageSeo = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedTargetPage === 'homepage') {
-      updateHomepage({
-        seoTitle,
-        metaDescription,
-        focusKeyword,
-        canonicalUrl,
-        robots: robotsMeta,
-        ogTitle,
-        ogDescription,
-        ogImage,
-        twitterCard,
-        schemaMarkup: customSchemaMarkup
-      });
-      updateSettings({
-        siteTitle: seoTitle,
-        metaDescription,
-        canonicalUrl,
-        robotsMeta,
-        ogTitle,
-        ogDescription,
-        ogImage,
-        twitterCard
-      });
-      showToast('Homepage Enterprise SEO settings saved & synced!');
-    } else if (selectedTargetPage.startsWith('location-')) {
-      const slug = selectedTargetPage.replace('location-', '');
-      const loc = cmsData.locations[slug];
-      if (loc) {
-        const updatedLoc: LocationPageInfo = {
-          ...loc,
-          title: seoTitle,
+    try {
+      if (selectedTargetPage === 'homepage') {
+        await updateHomepage({
+          seoTitle,
           metaDescription,
           focusKeyword,
           canonicalUrl,
-          robotsMeta,
+          robots: robotsMeta,
           ogTitle,
           ogDescription,
           ogImage,
           twitterCard,
           schemaMarkup: customSchemaMarkup
-        };
-        updateLocations({
-          ...cmsData.locations,
-          [slug]: updatedLoc
         });
-        showToast(`SEO updated for Location: ${loc.areaName}!`);
+        await updateSettings({
+          siteTitle: seoTitle,
+          metaDescription,
+          canonicalUrl,
+          robotsMeta,
+          ogTitle,
+          ogDescription,
+          ogImage,
+          twitterCard
+        });
+        showToast('Homepage Enterprise SEO settings saved & synced to Supabase!');
+      } else if (selectedTargetPage.startsWith('location-')) {
+        const slug = selectedTargetPage.replace('location-', '');
+        const loc = cmsData.locations[slug];
+        if (loc) {
+          const updatedLoc: LocationPageInfo = {
+            ...loc,
+            title: seoTitle,
+            metaDescription,
+            focusKeyword,
+            canonicalUrl,
+            robotsMeta,
+            ogTitle,
+            ogDescription,
+            ogImage,
+            twitterCard,
+            schemaMarkup: customSchemaMarkup
+          };
+          await updateLocations({
+            ...cmsData.locations,
+            [slug]: updatedLoc
+          });
+          showToast(`SEO updated for Location: ${loc.areaName} in Supabase!`);
+        }
       }
+    } catch (err: any) {
+      console.error('[SeoModule Save Error]:', err);
+      showToast('Save Error: ' + (err.message || 'Database write failed'));
     }
   };
 

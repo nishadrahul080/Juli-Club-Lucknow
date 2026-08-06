@@ -243,23 +243,28 @@ export class CMSDatabaseApi {
     const updatedLocal = await settingsService.updateSettings(newSettings);
     const client = getSupabaseClient();
 
-    if (client) {
-      try {
-        const upsertRows = Object.entries(newSettings).map(([key, value]) => ({
-          key,
-          value,
-          updated_at: new Date().toISOString()
-        }));
-        const { error } = await client.from('site_settings').upsert(upsertRows, { onConflict: 'key' });
-        if (error) {
-          console.error('[Supabase Save Failure - site_settings]:', error);
-          throw new Error(`Supabase write failed: ${error.message}`);
-        }
-        console.log('[Supabase API] Successfully updated site_settings in Supabase!');
-      } catch (err) {
-        console.error('[Supabase API] Error updating settings:', err);
-        throw err;
+    if (!client) {
+      const msg = 'Supabase database client is unavailable. Please check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.';
+      console.error('[Supabase Save Failure - site_settings]:', msg);
+      throw new Error(msg);
+    }
+
+    try {
+      const upsertRows = Object.entries(newSettings).map(([key, value]) => ({
+        key,
+        value,
+        updated_at: new Date().toISOString()
+      }));
+      console.log('[Supabase Write Request - site_settings]: Upserting', upsertRows.length, 'keys...');
+      const { data, error } = await client.from('site_settings').upsert(upsertRows, { onConflict: 'key' });
+      if (error) {
+        console.error('[Supabase Save Failure - site_settings]:', error);
+        throw new Error(`Supabase write failed on site_settings: ${error.message}`);
       }
+      console.log('[Supabase Save Success - site_settings]: Database write confirmed!', data);
+    } catch (err) {
+      console.error('[Supabase API] Error updating settings:', err);
+      throw err;
     }
 
     return updatedLocal;
@@ -269,22 +274,27 @@ export class CMSDatabaseApi {
     const updatedLocal = await homepageService.updateHomepageConfig(newHomepage);
     const client = getSupabaseClient();
 
-    if (client) {
-      try {
-        const { error } = await client.from('homepage_config').upsert({
-          id: 'main',
-          data: updatedLocal,
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'id' });
-        if (error) {
-          console.error('[Supabase Save Failure - homepage_config]:', error);
-          throw new Error(`Supabase write failed: ${error.message}`);
-        }
-        console.log('[Supabase API] Successfully updated homepage_config in Supabase!');
-      } catch (err) {
-        console.error('[Supabase API] Error updating homepage:', err);
-        throw err;
+    if (!client) {
+      const msg = 'Supabase database client is unavailable. Please check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.';
+      console.error('[Supabase Save Failure - homepage_config]:', msg);
+      throw new Error(msg);
+    }
+
+    try {
+      console.log('[Supabase Write Request - homepage_config]: Upserting record with id main...', updatedLocal);
+      const { data, error } = await client.from('homepage_config').upsert({
+        id: 'main',
+        data: updatedLocal,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'id' });
+      if (error) {
+        console.error('[Supabase Save Failure - homepage_config]:', error);
+        throw new Error(`Supabase write failed on homepage_config: ${error.message}`);
       }
+      console.log('[Supabase Save Success - homepage_config]: Row main created/updated in Supabase!', data);
+    } catch (err) {
+      console.error('[Supabase API] Error updating homepage:', err);
+      throw err;
     }
 
     return updatedLocal;
@@ -294,23 +304,28 @@ export class CMSDatabaseApi {
     const updatedLocal = await homepageService.updateSections(sections);
     const client = getSupabaseClient();
 
-    if (client) {
-      try {
-        const fullHomepage = await homepageService.getHomepageConfig();
-        const { error } = await client.from('homepage_config').upsert({
-          id: 'main',
-          data: { ...fullHomepage, sections },
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'id' });
-        if (error) {
-          console.error('[Supabase Save Failure - homepage_sections]:', error);
-          throw new Error(`Supabase write failed: ${error.message}`);
-        }
-        console.log('[Supabase API] Successfully updated homepage sections in Supabase!');
-      } catch (err) {
-        console.error('[Supabase API] Error updating homepage sections:', err);
-        throw err;
+    if (!client) {
+      const msg = 'Supabase database client is unavailable. Please check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.';
+      console.error('[Supabase Save Failure - homepage_sections]:', msg);
+      throw new Error(msg);
+    }
+
+    try {
+      const fullHomepage = await homepageService.getHomepageConfig();
+      console.log('[Supabase Write Request - homepage_sections]: Upserting main sections...', sections.length);
+      const { data, error } = await client.from('homepage_config').upsert({
+        id: 'main',
+        data: { ...fullHomepage, sections },
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'id' });
+      if (error) {
+        console.error('[Supabase Save Failure - homepage_sections]:', error);
+        throw new Error(`Supabase write failed on homepage_sections: ${error.message}`);
       }
+      console.log('[Supabase Save Success - homepage_sections]: Sections updated in Supabase!', data);
+    } catch (err) {
+      console.error('[Supabase API] Error updating homepage sections:', err);
+      throw err;
     }
 
     return updatedLocal;
@@ -331,25 +346,30 @@ export class CMSDatabaseApi {
     });
 
     const client = getSupabaseClient();
-    if (client) {
-      try {
-        const rows = profiles.map(p => ({
-          id: p.id,
-          slug: p.slug || p.id,
-          name: p.name,
-          data: p,
-          updated_at: new Date().toISOString()
-        }));
-        const { error } = await client.from('profiles').upsert(rows, { onConflict: 'id' });
-        if (error) {
-          console.error('[Supabase Save Failure - profiles]:', error);
-          throw new Error(`Supabase write failed: ${error.message}`);
-        }
-        console.log('[Supabase API] Successfully updated profiles in Supabase!');
-      } catch (err) {
-        console.error('[Supabase API] Error updating profiles:', err);
-        throw err;
+    if (!client) {
+      const msg = 'Supabase database client is unavailable. Please check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.';
+      console.error('[Supabase Save Failure - profiles]:', msg);
+      throw new Error(msg);
+    }
+
+    try {
+      const rows = profiles.map(p => ({
+        id: p.id,
+        slug: p.slug || p.id,
+        name: p.name,
+        data: p,
+        updated_at: new Date().toISOString()
+      }));
+      console.log('[Supabase Write Request - profiles]: Upserting', rows.length, 'profiles...');
+      const { data, error } = await client.from('profiles').upsert(rows, { onConflict: 'id' });
+      if (error) {
+        console.error('[Supabase Save Failure - profiles]:', error);
+        throw new Error(`Supabase write failed on profiles: ${error.message}`);
       }
+      console.log('[Supabase Save Success - profiles]: Database write confirmed!', data);
+    } catch (err) {
+      console.error('[Supabase API] Error updating profiles:', err);
+      throw err;
     }
 
     return localRes;
@@ -373,23 +393,28 @@ export class CMSDatabaseApi {
     });
 
     const client = getSupabaseClient();
-    if (client) {
-      try {
-        const rows = reviews.map(r => ({
-          id: r.id || `rev-${Date.now()}`,
-          data: r,
-          created_at: new Date().toISOString()
-        }));
-        const { error } = await client.from('reviews').upsert(rows, { onConflict: 'id' });
-        if (error) {
-          console.error('[Supabase Save Failure - reviews]:', error);
-          throw new Error(`Supabase write failed: ${error.message}`);
-        }
-        console.log('[Supabase API] Successfully updated reviews in Supabase!');
-      } catch (err) {
-        console.error('[Supabase API] Error updating reviews:', err);
-        throw err;
+    if (!client) {
+      const msg = 'Supabase database client is unavailable. Please check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.';
+      console.error('[Supabase Save Failure - reviews]:', msg);
+      throw new Error(msg);
+    }
+
+    try {
+      const rows = reviews.map(r => ({
+        id: r.id || `rev-${Date.now()}`,
+        data: r,
+        created_at: new Date().toISOString()
+      }));
+      console.log('[Supabase Write Request - reviews]: Upserting', rows.length, 'reviews...');
+      const { data, error } = await client.from('reviews').upsert(rows, { onConflict: 'id' });
+      if (error) {
+        console.error('[Supabase Save Failure - reviews]:', error);
+        throw new Error(`Supabase write failed on reviews: ${error.message}`);
       }
+      console.log('[Supabase Save Success - reviews]: Database write confirmed!', data);
+    } catch (err) {
+      console.error('[Supabase API] Error updating reviews:', err);
+      throw err;
     }
 
     return localRes;
@@ -411,27 +436,32 @@ export class CMSDatabaseApi {
     });
 
     const client = getSupabaseClient();
-    if (client) {
-      try {
-        const rows = faqs.map((f, idx) => ({
-          id: f.id || `faq-${idx}`,
-          question: f.question,
-          answer: f.answer,
-          category: f.category || 'General',
-          display_order: idx + 1,
-          data: f,
-          updated_at: new Date().toISOString()
-        }));
-        const { error } = await client.from('faqs').upsert(rows, { onConflict: 'id' });
-        if (error) {
-          console.error('[Supabase Save Failure - faqs]:', error);
-          throw new Error(`Supabase write failed: ${error.message}`);
-        }
-        console.log('[Supabase API] Successfully updated faqs in Supabase!');
-      } catch (err) {
-        console.error('[Supabase API] Error updating FAQs:', err);
-        throw err;
+    if (!client) {
+      const msg = 'Supabase database client is unavailable. Please check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.';
+      console.error('[Supabase Save Failure - faqs]:', msg);
+      throw new Error(msg);
+    }
+
+    try {
+      const rows = faqs.map((f, idx) => ({
+        id: f.id || `faq-${idx}`,
+        question: f.question,
+        answer: f.answer,
+        category: f.category || 'General',
+        display_order: idx + 1,
+        data: f,
+        updated_at: new Date().toISOString()
+      }));
+      console.log('[Supabase Write Request - faqs]: Upserting', rows.length, 'FAQs...');
+      const { data, error } = await client.from('faqs').upsert(rows, { onConflict: 'id' });
+      if (error) {
+        console.error('[Supabase Save Failure - faqs]:', error);
+        throw new Error(`Supabase write failed on faqs: ${error.message}`);
       }
+      console.log('[Supabase Save Success - faqs]: Database write confirmed!', data);
+    } catch (err) {
+      console.error('[Supabase API] Error updating FAQs:', err);
+      throw err;
     }
 
     return localRes;
@@ -454,24 +484,29 @@ export class CMSDatabaseApi {
     });
 
     const client = getSupabaseClient();
-    if (client) {
-      try {
-        const rows = Object.values(locationsMap).map(loc => ({
-          slug: loc.slug,
-          name: loc.areaName,
-          data: loc,
-          updated_at: new Date().toISOString()
-        }));
-        const { error } = await client.from('locations').upsert(rows, { onConflict: 'slug' });
-        if (error) {
-          console.error('[Supabase Save Failure - locations]:', error);
-          throw new Error(`Supabase write failed: ${error.message}`);
-        }
-        console.log('[Supabase API] Successfully updated locations in Supabase!');
-      } catch (err) {
-        console.error('[Supabase API] Error updating locations:', err);
-        throw err;
+    if (!client) {
+      const msg = 'Supabase database client is unavailable. Please check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.';
+      console.error('[Supabase Save Failure - locations]:', msg);
+      throw new Error(msg);
+    }
+
+    try {
+      const rows = Object.values(locationsMap).map(loc => ({
+        slug: loc.slug,
+        name: loc.areaName,
+        data: loc,
+        updated_at: new Date().toISOString()
+      }));
+      console.log('[Supabase Write Request - locations]: Upserting', rows.length, 'locations...');
+      const { data, error } = await client.from('locations').upsert(rows, { onConflict: 'slug' });
+      if (error) {
+        console.error('[Supabase Save Failure - locations]:', error);
+        throw new Error(`Supabase write failed on locations: ${error.message}`);
       }
+      console.log('[Supabase Save Success - locations]: Database write confirmed!', data);
+    } catch (err) {
+      console.error('[Supabase API] Error updating locations:', err);
+      throw err;
     }
 
     return localRes;
@@ -481,23 +516,28 @@ export class CMSDatabaseApi {
     const localRes = await locationService.createLocationPage(location as any);
     const client = getSupabaseClient();
 
-    if (client) {
-      try {
-        const { error } = await client.from('locations').upsert({
-          slug: location.slug,
-          name: location.areaName,
-          data: location,
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'slug' });
-        if (error) {
-          console.error('[Supabase Save Failure - add location]:', error);
-          throw new Error(`Supabase write failed: ${error.message}`);
-        }
-        console.log('[Supabase API] Successfully added location to Supabase!');
-      } catch (err) {
-        console.error('[Supabase API] Error adding location page:', err);
-        throw err;
+    if (!client) {
+      const msg = 'Supabase database client is unavailable. Please check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.';
+      console.error('[Supabase Save Failure - addLocationPage]:', msg);
+      throw new Error(msg);
+    }
+
+    try {
+      console.log('[Supabase Write Request - addLocationPage]: Upserting slug', location.slug);
+      const { data, error } = await client.from('locations').upsert({
+        slug: location.slug,
+        name: location.areaName,
+        data: location,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'slug' });
+      if (error) {
+        console.error('[Supabase Save Failure - add location]:', error);
+        throw new Error(`Supabase write failed on locations: ${error.message}`);
       }
+      console.log('[Supabase Save Success - addLocationPage]: Location added to Supabase!', data);
+    } catch (err) {
+      console.error('[Supabase API] Error adding location page:', err);
+      throw err;
     }
 
     return localRes;
@@ -507,18 +547,23 @@ export class CMSDatabaseApi {
     const localRes = await locationService.deleteLocationPage(slug);
     const client = getSupabaseClient();
 
-    if (client) {
-      try {
-        const { error } = await client.from('locations').delete().eq('slug', slug);
-        if (error) {
-          console.error('[Supabase Save Failure - delete location]:', error);
-          throw new Error(`Supabase write failed: ${error.message}`);
-        }
-        console.log('[Supabase API] Successfully deleted location from Supabase!');
-      } catch (err) {
-        console.error('[Supabase API] Error deleting location page:', err);
-        throw err;
+    if (!client) {
+      const msg = 'Supabase database client is unavailable. Please check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.';
+      console.error('[Supabase Save Failure - deleteLocationPage]:', msg);
+      throw new Error(msg);
+    }
+
+    try {
+      console.log('[Supabase Write Request - deleteLocationPage]: Deleting slug', slug);
+      const { error } = await client.from('locations').delete().eq('slug', slug);
+      if (error) {
+        console.error('[Supabase Save Failure - delete location]:', error);
+        throw new Error(`Supabase write failed on locations: ${error.message}`);
       }
+      console.log('[Supabase Save Success - deleteLocationPage]: Location deleted from Supabase!');
+    } catch (err) {
+      console.error('[Supabase API] Error deleting location page:', err);
+      throw err;
     }
 
     return localRes;
@@ -528,25 +573,30 @@ export class CMSDatabaseApi {
     const localRes = await redirectService.updateRedirects(redirects);
     const client = getSupabaseClient();
 
-    if (client) {
-      try {
-        const rows = redirects.map((r: any, idx) => ({
-          id: r.id || `red-${idx}`,
-          from_path: r.fromSlug || r.from || '',
-          to_path: r.toTarget || r.to || '',
-          type: r.statusCode || r.type || 301,
-          created_at: new Date().toISOString()
-        }));
-        const { error } = await client.from('redirects').upsert(rows, { onConflict: 'id' });
-        if (error) {
-          console.error('[Supabase Save Failure - redirects]:', error);
-          throw new Error(`Supabase write failed: ${error.message}`);
-        }
-        console.log('[Supabase API] Successfully updated redirects in Supabase!');
-      } catch (err) {
-        console.error('[Supabase API] Error updating redirects:', err);
-        throw err;
+    if (!client) {
+      const msg = 'Supabase database client is unavailable. Please check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.';
+      console.error('[Supabase Save Failure - redirects]:', msg);
+      throw new Error(msg);
+    }
+
+    try {
+      const rows = redirects.map((r: any, idx) => ({
+        id: r.id || `red-${idx}`,
+        from_path: r.fromSlug || r.from || '',
+        to_path: r.toTarget || r.to || '',
+        type: r.statusCode || r.type || 301,
+        created_at: new Date().toISOString()
+      }));
+      console.log('[Supabase Write Request - redirects]: Upserting', rows.length, 'redirects...');
+      const { data, error } = await client.from('redirects').upsert(rows, { onConflict: 'id' });
+      if (error) {
+        console.error('[Supabase Save Failure - redirects]:', error);
+        throw new Error(`Supabase write failed on redirects: ${error.message}`);
       }
+      console.log('[Supabase Save Success - redirects]: Database write confirmed!', data);
+    } catch (err) {
+      console.error('[Supabase API] Error updating redirects:', err);
+      throw err;
     }
 
     return localRes;
@@ -566,25 +616,30 @@ export class CMSDatabaseApi {
     });
 
     const client = getSupabaseClient();
-    if (client) {
-      try {
-        const rows = blogs.map(b => ({
-          id: b.id,
-          slug: b.slug,
-          title: b.title,
-          data: b,
-          updated_at: new Date().toISOString()
-        }));
-        const { error } = await client.from('blogs').upsert(rows, { onConflict: 'id' });
-        if (error) {
-          console.error('[Supabase Save Failure - blogs]:', error);
-          throw new Error(`Supabase write failed: ${error.message}`);
-        }
-        console.log('[Supabase API] Successfully updated blogs in Supabase!');
-      } catch (err) {
-        console.error('[Supabase API] Error updating blogs:', err);
-        throw err;
+    if (!client) {
+      const msg = 'Supabase database client is unavailable. Please check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.';
+      console.error('[Supabase Save Failure - blogs]:', msg);
+      throw new Error(msg);
+    }
+
+    try {
+      const rows = blogs.map(b => ({
+        id: b.id,
+        slug: b.slug,
+        title: b.title,
+        data: b,
+        updated_at: new Date().toISOString()
+      }));
+      console.log('[Supabase Write Request - blogs]: Upserting', rows.length, 'blogs...');
+      const { data, error } = await client.from('blogs').upsert(rows, { onConflict: 'id' });
+      if (error) {
+        console.error('[Supabase Save Failure - blogs]:', error);
+        throw new Error(`Supabase write failed on blogs: ${error.message}`);
       }
+      console.log('[Supabase Save Success - blogs]: Database write confirmed!', data);
+    } catch (err) {
+      console.error('[Supabase API] Error updating blogs:', err);
+      throw err;
     }
 
     return localRes;
