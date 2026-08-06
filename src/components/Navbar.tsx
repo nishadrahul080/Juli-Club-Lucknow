@@ -244,7 +244,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   Location Area Pages:
                 </span>
                 <div className="grid grid-cols-1 gap-1 pl-1">
-                  {LOCATION_PAGES.map((loc) => (
+                  {(Object.values(cmsData.locations || {}) as LocationPageInfo[]).map((loc) => (
                     <button
                       key={loc.slug}
                       onClick={() => {

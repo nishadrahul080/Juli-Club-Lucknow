@@ -25,7 +25,7 @@ import {
 
 import { COMPANION_PROFILES, CLIENT_REVIEWS, FAQS } from '../data/mockData';
 import { LOCATION_PAGES } from '../data/locationData';
-import { DEFAULT_HOMEPAGE_SECTIONS, DEFAULT_HOMEPAGE_CONFIG, DEFAULT_SETTINGS, INITIAL_BLOGS } from '../data/cmsStore';
+import { DEFAULT_HOMEPAGE_SECTIONS, DEFAULT_HOMEPAGE_CONFIG, DEFAULT_SETTINGS, INITIAL_BLOGS, getCMSData } from '../data/cmsStore';
 
 export interface DatabaseTables {
   cities: CityRow[];
@@ -59,6 +59,8 @@ class RelationalDatabase {
   }
 
   private seedDatabase(): DatabaseTables {
+    const initialData = getCMSData();
+
     const cities: CityRow[] = [
       { id: 'city-1', name: 'Lucknow', slug: 'lucknow', state: 'Uttar Pradesh', country: 'India', ads_count: 50, is_popular: true, is_active: true },
       { id: 'city-2', name: 'Noida', slug: 'noida', state: 'Uttar Pradesh', country: 'India', ads_count: 35, is_popular: true, is_active: true },
@@ -96,7 +98,8 @@ class RelationalDatabase {
     const profile_images: ProfileImageRow[] = [];
 
     // Seed Profiles
-    const profiles: ProfileRow[] = COMPANION_PROFILES.map(prof => {
+    const profilesList = initialData.profiles && initialData.profiles.length > 0 ? initialData.profiles : COMPANION_PROFILES;
+    const profiles: ProfileRow[] = profilesList.map(prof => {
       const mediaId = `med-avatar-${prof.id}`;
       media_library.push({
         id: mediaId,
@@ -109,7 +112,7 @@ class RelationalDatabase {
         alt_text: prof.name
       });
 
-      prof.gallery.forEach((gUrl, idx) => {
+      (prof.gallery || []).forEach((gUrl, idx) => {
         const gMediaId = `med-gallery-${prof.id}-${idx}`;
         media_library.push({
           id: gMediaId,
@@ -138,7 +141,7 @@ class RelationalDatabase {
         entity_type: 'profile',
         entity_id: prof.id,
         meta_title: prof.seoTitle || `${prof.name} - ${prof.title} | Juli Club Lucknow`,
-        meta_description: prof.metaDescription || prof.shortIntro || prof.bio.substring(0, 160),
+        meta_description: prof.metaDescription || prof.shortIntro || (prof.bio || '').substring(0, 160),
         canonical_url: prof.canonicalUrl || `https://lucknow.juliclub.in/profiles/${prof.slug || prof.id}`,
         og_title: `${prof.name} - Call Girl Service Lucknow`,
         og_description: prof.shortIntro,
@@ -200,7 +203,8 @@ class RelationalDatabase {
     const location_content_sections: LocationContentSectionRow[] = [];
     const location_faqs: LocationFaqRow[] = [];
 
-    LOCATION_PAGES.forEach((loc, idx) => {
+    const locsList = Object.values(initialData.locations || {});
+    locsList.forEach((loc, idx) => {
       const locId = `loc-${idx + 1}`;
       location_pages.push({
         id: locId,
@@ -230,7 +234,7 @@ class RelationalDatabase {
       });
 
       // Content Sections
-      loc.contentSections.forEach((cs, cIdx) => {
+      (loc.contentSections || []).forEach((cs, cIdx) => {
         location_content_sections.push({
           id: `lcs-${locId}-${cIdx}`,
           location_page_id: locId,
@@ -241,7 +245,7 @@ class RelationalDatabase {
       });
 
       // FAQs
-      loc.faqs.forEach((fq, fIdx) => {
+      (loc.faqs || []).forEach((fq, fIdx) => {
         location_faqs.push({
           id: `lfq-${locId}-${fIdx}`,
           location_page_id: locId,
@@ -265,11 +269,12 @@ class RelationalDatabase {
     });
 
     // Seed Homepage
+    const homepageConfig = initialData.homepage || DEFAULT_HOMEPAGE_CONFIG;
     const homepage_configs: HomepageConfigRow[] = [
       {
         id: 'hp-cfg-1',
         city_id: 'city-1',
-        status: DEFAULT_HOMEPAGE_CONFIG.status,
+        status: homepageConfig.status || 'published',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       }
@@ -279,19 +284,19 @@ class RelationalDatabase {
       id: 'seo-hp-1',
       entity_type: 'homepage',
       entity_id: 'hp-cfg-1',
-      meta_title: DEFAULT_HOMEPAGE_CONFIG.seoTitle,
-      meta_description: DEFAULT_HOMEPAGE_CONFIG.metaDescription,
-      canonical_url: DEFAULT_HOMEPAGE_CONFIG.canonicalUrl,
-      robots_meta: DEFAULT_HOMEPAGE_CONFIG.robots,
-      og_title: DEFAULT_HOMEPAGE_CONFIG.ogTitle,
-      og_description: DEFAULT_HOMEPAGE_CONFIG.ogDescription,
-      og_image_url: DEFAULT_HOMEPAGE_CONFIG.ogImage,
-      twitter_card: DEFAULT_HOMEPAGE_CONFIG.twitterCard,
-      focus_keyword: DEFAULT_HOMEPAGE_CONFIG.focusKeyword,
-      schema_markup: DEFAULT_HOMEPAGE_CONFIG.schemaMarkup
+      meta_title: homepageConfig.seoTitle,
+      meta_description: homepageConfig.metaDescription,
+      canonical_url: homepageConfig.canonicalUrl,
+      robots_meta: homepageConfig.robots,
+      og_title: homepageConfig.ogTitle,
+      og_description: homepageConfig.ogDescription,
+      og_image_url: homepageConfig.ogImage,
+      twitter_card: homepageConfig.twitterCard,
+      focus_keyword: homepageConfig.focusKeyword,
+      schema_markup: homepageConfig.schemaMarkup
     });
 
-    const homepage_sections: HomepageSectionRow[] = DEFAULT_HOMEPAGE_SECTIONS.map(sec => ({
+    const homepage_sections: HomepageSectionRow[] = (homepageConfig.sections || DEFAULT_HOMEPAGE_SECTIONS).map(sec => ({
       id: sec.id,
       homepage_config_id: 'hp-cfg-1',
       type: sec.type,
@@ -310,7 +315,8 @@ class RelationalDatabase {
     }));
 
     // Seed Blogs
-    const blogs: BlogRow[] = INITIAL_BLOGS.map(b => ({
+    const blogsList = initialData.blogs || INITIAL_BLOGS;
+    const blogs: BlogRow[] = blogsList.map(b => ({
       id: b.id,
       slug: b.slug,
       title: b.title,
@@ -327,17 +333,19 @@ class RelationalDatabase {
     }));
 
     // Seed FAQs
-    const faqs: FaqRow[] = FAQS.map((item, idx) => ({
-      id: `faq-${idx + 1}`,
+    const faqsList = initialData.faqs || FAQS.map((item, idx) => ({ id: `faq-${idx}`, question: item.question, answer: item.answer, category: 'General' }));
+    const faqs: FaqRow[] = faqsList.map((item, idx) => ({
+      id: item.id || `faq-${idx + 1}`,
       question: item.question,
       answer: item.answer,
-      category: 'General',
+      category: item.category || 'General',
       display_order: idx + 1,
       is_active: true
     }));
 
     // Seed Reviews
-    const reviews: ReviewRow[] = CLIENT_REVIEWS.map((rev, idx) => ({
+    const reviewsList = initialData.reviews || CLIENT_REVIEWS;
+    const reviews: ReviewRow[] = reviewsList.map((rev, idx) => ({
       id: rev.id || `rev-${idx + 1}`,
       client_name: rev.clientName,
       profile_name: rev.profileName,
@@ -349,7 +357,8 @@ class RelationalDatabase {
     }));
 
     // Seed Settings
-    const site_settings: SiteSettingRow[] = Object.entries(DEFAULT_SETTINGS).map(([k, v]) => ({
+    const settingsObj = initialData.settings || DEFAULT_SETTINGS;
+    const site_settings: SiteSettingRow[] = Object.entries(settingsObj).map(([k, v]) => ({
       id: `set-${k}`,
       setting_key: k,
       setting_value: typeof v === 'string' ? v : JSON.stringify(v),

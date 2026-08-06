@@ -20,9 +20,16 @@ import {
 } from 'lucide-react';
 
 export const HomepageModule: React.FC = () => {
-  const { cmsData, updateHomepage, updateHomepageSections, isPreviewMode, togglePreviewMode } = useCMS();
+  const { cmsData, updateHomepage, updateHomepageSections, updateSettings, isPreviewMode, togglePreviewMode } = useCMS();
   const [activeTab, setActiveTab] = useState<'hero' | 'builder' | 'seo'>('hero');
   const [formData, setFormData] = useState<HomepageConfig>({ ...cmsData.homepage });
+  const [heroSettings, setHeroSettings] = useState({
+    badgeText: cmsData.settings.badgeText || '',
+    heroHeading: cmsData.settings.heroHeading || '',
+    heroSubheading: cmsData.settings.heroSubheading || '',
+    whatsappMessage: cmsData.settings.whatsappMessage || '',
+    whatsappNumber: cmsData.settings.whatsappNumber || ''
+  });
   const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
   const [mediaPickerTarget, setMediaPickerTarget] = useState<'ogImage' | null>(null);
 
@@ -30,9 +37,15 @@ export const HomepageModule: React.FC = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleHeroSettingChange = (field: string, value: string) => {
+    setHeroSettings(prev => ({ ...prev, [field]: value }));
+    updateSettings({ [field]: value });
+  };
+
   const handleSaveHomepage = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     updateHomepage(formData);
+    updateSettings(heroSettings);
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
   };
@@ -154,8 +167,8 @@ export const HomepageModule: React.FC = () => {
                 <label className="block text-xs font-bold text-white mb-1">Badge Text (Eyebrow Tag)</label>
                 <input
                   type="text"
-                  value={cmsData.settings.badgeText}
-                  onChange={e => updateHomepage({ ...formData })}
+                  value={heroSettings.badgeText}
+                  onChange={e => handleHeroSettingChange('badgeText', e.target.value)}
                   placeholder="e.g. 100% Genuine & Verified Companions (Lucknow)"
                   className="w-full bg-[#1a1a1a] border border-white/15 rounded-lg px-3.5 py-2.5 text-xs text-white focus:border-[#c5a059] outline-none"
                 />
@@ -165,8 +178,8 @@ export const HomepageModule: React.FC = () => {
                 <label className="block text-xs font-bold text-white mb-1">Main H1 Title</label>
                 <input
                   type="text"
-                  value={cmsData.settings.heroHeading}
-                  onChange={e => updateHomepage({ ...formData })}
+                  value={heroSettings.heroHeading}
+                  onChange={e => handleHeroSettingChange('heroHeading', e.target.value)}
                   placeholder="Exclusive Call Girl Service Lucknow"
                   className="w-full bg-[#1a1a1a] border border-white/15 rounded-lg px-3.5 py-2.5 text-xs text-white focus:border-[#c5a059] outline-none"
                 />
@@ -176,8 +189,8 @@ export const HomepageModule: React.FC = () => {
                 <label className="block text-xs font-bold text-white mb-1">Hero Subheading</label>
                 <input
                   type="text"
-                  value={cmsData.settings.heroSubheading}
-                  onChange={e => updateHomepage({ ...formData })}
+                  value={heroSettings.heroSubheading}
+                  onChange={e => handleHeroSettingChange('heroSubheading', e.target.value)}
                   placeholder="100% Cash on Delivery • 0 Advance Payment • Free Cab Pickup"
                   className="w-full bg-[#1a1a1a] border border-white/15 rounded-lg px-3.5 py-2.5 text-xs text-white focus:border-[#c5a059] outline-none"
                 />
@@ -189,8 +202,8 @@ export const HomepageModule: React.FC = () => {
                 <label className="block text-xs font-bold text-white mb-1">WhatsApp Call-to-Action Text</label>
                 <input
                   type="text"
-                  value={cmsData.settings.whatsappMessage}
-                  onChange={e => updateHomepage({ ...formData })}
+                  value={heroSettings.whatsappMessage}
+                  onChange={e => handleHeroSettingChange('whatsappMessage', e.target.value)}
                   placeholder="Hello Juli Club, I want to book a VIP companion in Lucknow."
                   className="w-full bg-[#1a1a1a] border border-white/15 rounded-lg px-3.5 py-2.5 text-xs text-white focus:border-[#c5a059] outline-none"
                 />
@@ -200,8 +213,8 @@ export const HomepageModule: React.FC = () => {
                 <label className="block text-xs font-bold text-white mb-1">WhatsApp Phone Number</label>
                 <input
                   type="text"
-                  value={cmsData.settings.whatsappNumber}
-                  onChange={e => updateHomepage({ ...formData })}
+                  value={heroSettings.whatsappNumber}
+                  onChange={e => handleHeroSettingChange('whatsappNumber', e.target.value)}
                   placeholder="918726179837"
                   className="w-full bg-[#1a1a1a] border border-white/15 rounded-lg px-3.5 py-2.5 text-xs text-white focus:border-[#c5a059] outline-none font-mono"
                 />
@@ -209,8 +222,8 @@ export const HomepageModule: React.FC = () => {
 
               <div className="p-4 bg-[#0d0d0d] rounded-lg border border-[#c5a059]/30 text-xs space-y-1">
                 <span className="font-bold text-[#c5a059] block">Hero Live Preview Copy:</span>
-                <p className="text-white/80 font-serif font-bold text-sm">{cmsData.settings.heroHeading}</p>
-                <p className="text-white/60 text-[11px]">{cmsData.settings.heroSubheading}</p>
+                <p className="text-white/80 font-serif font-bold text-sm">{heroSettings.heroHeading || cmsData.settings.heroHeading}</p>
+                <p className="text-white/60 text-[11px]">{heroSettings.heroSubheading || cmsData.settings.heroSubheading}</p>
               </div>
             </div>
           </div>

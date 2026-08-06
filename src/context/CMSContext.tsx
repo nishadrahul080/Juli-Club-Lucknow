@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getCMSData, resetCMSData, CMSData, SiteSettings, HomepageConfig, BlogPost } from '../data/cmsStore';
+import { getCMSData, saveCMSData, resetCMSData, CMSData, SiteSettings, HomepageConfig, BlogPost } from '../data/cmsStore';
 import { CompanionProfile, Review, LocationPageInfo, CMSSection, RedirectRule } from '../types';
 import { cmsDatabaseApi } from '../api/cmsDatabaseApi';
 
@@ -33,6 +33,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     cmsDatabaseApi.loadFullCMSData().then(data => {
       if (data) {
         setCmsData(data);
+        saveCMSData(data);
       }
     }).catch(err => {
       console.error('Error loading data from database repository layer:', err);
@@ -44,60 +45,92 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateSettings = (newSettings: Partial<SiteSettings>) => {
-    setCmsData(prev => ({
-      ...prev,
-      settings: { ...prev.settings, ...newSettings }
-    }));
+    setCmsData(prev => {
+      const nextData: CMSData = {
+        ...prev,
+        settings: { ...prev.settings, ...newSettings }
+      };
+      saveCMSData(nextData);
+      return nextData;
+    });
     cmsDatabaseApi.updateSettings(newSettings).catch(err => console.error('DB sync error:', err));
   };
 
   const updateHomepage = (newHomepage: Partial<HomepageConfig>) => {
-    setCmsData(prev => ({
-      ...prev,
-      homepage: { ...prev.homepage, ...newHomepage }
-    }));
+    setCmsData(prev => {
+      const nextData: CMSData = {
+        ...prev,
+        homepage: { ...prev.homepage, ...newHomepage }
+      };
+      saveCMSData(nextData);
+      return nextData;
+    });
     cmsDatabaseApi.updateHomepage(newHomepage).catch(err => console.error('DB sync error:', err));
   };
 
   const updateHomepageSections = (newSections: CMSSection[]) => {
-    setCmsData(prev => ({
-      ...prev,
-      homepage: {
-        ...prev.homepage,
-        sections: newSections
-      }
-    }));
+    setCmsData(prev => {
+      const nextData: CMSData = {
+        ...prev,
+        homepage: {
+          ...prev.homepage,
+          sections: newSections
+        }
+      };
+      saveCMSData(nextData);
+      return nextData;
+    });
     cmsDatabaseApi.updateHomepageSections(newSections).catch(err => console.error('DB sync error:', err));
   };
 
   const updateProfiles = (newProfiles: CompanionProfile[]) => {
-    setCmsData(prev => ({ ...prev, profiles: newProfiles }));
+    setCmsData(prev => {
+      const nextData: CMSData = { ...prev, profiles: newProfiles };
+      saveCMSData(nextData);
+      return nextData;
+    });
     cmsDatabaseApi.updateProfiles(newProfiles).catch(err => console.error('DB sync error:', err));
   };
 
   const updateReviews = (newReviews: Review[]) => {
-    setCmsData(prev => ({ ...prev, reviews: newReviews }));
+    setCmsData(prev => {
+      const nextData: CMSData = { ...prev, reviews: newReviews };
+      saveCMSData(nextData);
+      return nextData;
+    });
     cmsDatabaseApi.updateReviews(newReviews).catch(err => console.error('DB sync error:', err));
   };
 
   const updateFAQs = (newFAQs: { id: string; question: string; answer: string; category: string }[]) => {
-    setCmsData(prev => ({ ...prev, faqs: newFAQs }));
+    setCmsData(prev => {
+      const nextData: CMSData = { ...prev, faqs: newFAQs };
+      saveCMSData(nextData);
+      return nextData;
+    });
     cmsDatabaseApi.updateFAQs(newFAQs).catch(err => console.error('DB sync error:', err));
   };
 
   const updateLocations = (newLocations: Record<string, LocationPageInfo>) => {
-    setCmsData(prev => ({ ...prev, locations: newLocations }));
+    setCmsData(prev => {
+      const nextData: CMSData = { ...prev, locations: newLocations };
+      saveCMSData(nextData);
+      return nextData;
+    });
     cmsDatabaseApi.updateLocations(newLocations).catch(err => console.error('DB sync error:', err));
   };
 
   const addLocationPage = (location: LocationPageInfo) => {
-    setCmsData(prev => ({
-      ...prev,
-      locations: {
-        ...prev.locations,
-        [location.slug]: location
-      }
-    }));
+    setCmsData(prev => {
+      const nextData: CMSData = {
+        ...prev,
+        locations: {
+          ...prev.locations,
+          [location.slug]: location
+        }
+      };
+      saveCMSData(nextData);
+      return nextData;
+    });
     cmsDatabaseApi.addLocationPage(location).catch(err => console.error('DB sync error:', err));
   };
 
@@ -105,18 +138,28 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCmsData(prev => {
       const nextLocs = { ...prev.locations };
       delete nextLocs[slug];
-      return { ...prev, locations: nextLocs };
+      const nextData: CMSData = { ...prev, locations: nextLocs };
+      saveCMSData(nextData);
+      return nextData;
     });
     cmsDatabaseApi.deleteLocationPage(slug).catch(err => console.error('DB sync error:', err));
   };
 
   const updateRedirects = (newRedirects: RedirectRule[]) => {
-    setCmsData(prev => ({ ...prev, redirects: newRedirects }));
+    setCmsData(prev => {
+      const nextData: CMSData = { ...prev, redirects: newRedirects };
+      saveCMSData(nextData);
+      return nextData;
+    });
     cmsDatabaseApi.updateRedirects(newRedirects).catch(err => console.error('DB sync error:', err));
   };
 
   const updateBlogs = (newBlogs: BlogPost[]) => {
-    setCmsData(prev => ({ ...prev, blogs: newBlogs }));
+    setCmsData(prev => {
+      const nextData: CMSData = { ...prev, blogs: newBlogs };
+      saveCMSData(nextData);
+      return nextData;
+    });
     cmsDatabaseApi.updateBlogs(newBlogs).catch(err => console.error('DB sync error:', err));
   };
 
@@ -170,3 +213,4 @@ export const useCMS = () => {
   }
   return context;
 };
+
