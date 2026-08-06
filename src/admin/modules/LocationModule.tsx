@@ -122,7 +122,7 @@ export const LocationModule: React.FC = () => {
     setActiveSubTab('details');
   };
 
-  const handleCloneLocation = (loc: LocationPageInfo) => {
+  const handleCloneLocation = async (loc: LocationPageInfo) => {
     const slugSuffix = Math.floor(100 + Math.random() * 900);
     const cloned: LocationPageInfo = {
       ...loc,
@@ -131,26 +131,38 @@ export const LocationModule: React.FC = () => {
       title: `${loc.title} (Copy)`,
       status: 'draft'
     };
-    addLocationPage(cloned);
-    setSaveNotification(`Successfully cloned "${loc.areaName}" as draft!`);
-    setTimeout(() => setSaveNotification(null), 3000);
+    try {
+      await addLocationPage(cloned);
+      setSaveNotification(`Successfully cloned "${loc.areaName}" as draft!`);
+      setTimeout(() => setSaveNotification(null), 3000);
+    } catch (err: any) {
+      alert('Failed to clone location page: ' + (err.message || 'Error'));
+    }
   };
 
-  const handleDeleteLoc = (slug: string, areaName: string) => {
+  const handleDeleteLoc = async (slug: string, areaName: string) => {
     if (!window.confirm(`Are you sure you want to delete "${areaName}" location page?`)) return;
-    deleteLocationPage(slug);
-    if (editingLocation?.slug === slug) setEditingLocation(null);
-    setSaveNotification(`Deleted location "${areaName}"`);
-    setTimeout(() => setSaveNotification(null), 3000);
+    try {
+      await deleteLocationPage(slug);
+      if (editingLocation?.slug === slug) setEditingLocation(null);
+      setSaveNotification(`Deleted location "${areaName}"`);
+      setTimeout(() => setSaveNotification(null), 3000);
+    } catch (err: any) {
+      alert('Failed to delete location page: ' + (err.message || 'Error'));
+    }
   };
 
-  const handleSaveLocationForm = (e?: React.FormEvent) => {
+  const handleSaveLocationForm = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!editingLocation) return;
 
-    addLocationPage(editingLocation);
-    setSaveNotification(`Saved location "${editingLocation.areaName}" successfully!`);
-    setTimeout(() => setSaveNotification(null), 3000);
+    try {
+      await addLocationPage(editingLocation);
+      setSaveNotification(`Saved location "${editingLocation.areaName}" successfully!`);
+      setTimeout(() => setSaveNotification(null), 3000);
+    } catch (err: any) {
+      alert('Failed to save location page to database: ' + (err.message || 'Error'));
+    }
   };
 
   return (

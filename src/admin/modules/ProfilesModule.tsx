@@ -182,7 +182,7 @@ export const ProfilesModule: React.FC = () => {
     setIsFormOpen(true);
   };
 
-  const handleDuplicate = (profile: CompanionProfile) => {
+  const handleDuplicate = async (profile: CompanionProfile) => {
     const copy: CompanionProfile = {
       ...profile,
       id: `lko-${Date.now().toString(36)}`,
@@ -192,19 +192,27 @@ export const ProfilesModule: React.FC = () => {
       updatedAt: new Date().toISOString()
     };
     const updated = [copy, ...normalizedProfiles];
-    updateProfiles(updated);
-    alert(`Duplicated profile as "${copy.name}".`);
-  };
-
-  const handleDelete = (id: string, name: string) => {
-    if (window.confirm(`Are you sure you want to delete profile "${name}"?`)) {
-      const updated = normalizedProfiles.filter(p => p.id !== id);
-      updateProfiles(updated);
-      setSelectedIds(prev => prev.filter(i => i !== id));
+    try {
+      await updateProfiles(updated);
+      alert(`Duplicated profile as "${copy.name}".`);
+    } catch (err: any) {
+      alert('Failed to save duplicate to database: ' + (err.message || 'Error'));
     }
   };
 
-  const handleSaveProfile = (savedProfile: CompanionProfile) => {
+  const handleDelete = async (id: string, name: string) => {
+    if (window.confirm(`Are you sure you want to delete profile "${name}"?`)) {
+      const updated = normalizedProfiles.filter(p => p.id !== id);
+      try {
+        await updateProfiles(updated);
+        setSelectedIds(prev => prev.filter(i => i !== id));
+      } catch (err: any) {
+        alert('Failed to delete profile from database: ' + (err.message || 'Error'));
+      }
+    }
+  };
+
+  const handleSaveProfile = async (savedProfile: CompanionProfile) => {
     let updated: CompanionProfile[];
     const exists = normalizedProfiles.some(p => p.id === savedProfile.id);
     if (exists) {
@@ -212,12 +220,16 @@ export const ProfilesModule: React.FC = () => {
     } else {
       updated = [savedProfile, ...normalizedProfiles];
     }
-    updateProfiles(updated);
-    setIsFormOpen(false);
+    try {
+      await updateProfiles(updated);
+      setIsFormOpen(false);
+    } catch (err: any) {
+      alert('Failed to save profile to database: ' + (err.message || 'Error'));
+    }
   };
 
   // Bulk Actions
-  const handleBulkDelete = () => {
+  const handleBulkDelete = async () => {
     if (selectedIds.length === 0) return;
     if (
       window.confirm(
@@ -225,27 +237,39 @@ export const ProfilesModule: React.FC = () => {
       )
     ) {
       const updated = normalizedProfiles.filter(p => !selectedIds.includes(p.id));
-      updateProfiles(updated);
-      setSelectedIds([]);
+      try {
+        await updateProfiles(updated);
+        setSelectedIds([]);
+      } catch (err: any) {
+        alert('Failed bulk delete in database: ' + (err.message || 'Error'));
+      }
     }
   };
 
-  const handleBulkEnable = () => {
+  const handleBulkEnable = async () => {
     if (selectedIds.length === 0) return;
     const updated = normalizedProfiles.map(p =>
       selectedIds.includes(p.id) ? { ...p, isActive: true } : p
     );
-    updateProfiles(updated);
-    setSelectedIds([]);
+    try {
+      await updateProfiles(updated);
+      setSelectedIds([]);
+    } catch (err: any) {
+      alert('Failed bulk update in database: ' + (err.message || 'Error'));
+    }
   };
 
-  const handleBulkDisable = () => {
+  const handleBulkDisable = async () => {
     if (selectedIds.length === 0) return;
     const updated = normalizedProfiles.map(p =>
       selectedIds.includes(p.id) ? { ...p, isActive: false } : p
     );
-    updateProfiles(updated);
-    setSelectedIds([]);
+    try {
+      await updateProfiles(updated);
+      setSelectedIds([]);
+    } catch (err: any) {
+      alert('Failed bulk update in database: ' + (err.message || 'Error'));
+    }
   };
 
   const handleExportJSON = () => {

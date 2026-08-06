@@ -11,7 +11,7 @@ export const RedirectsModule: React.FC = () => {
   const [newStatusCode, setNewStatusCode] = useState<301 | 302>(301);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  const handleAddRedirect = (e: React.FormEvent) => {
+  const handleAddRedirect = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newFrom || !newTo) return;
 
@@ -25,24 +25,35 @@ export const RedirectsModule: React.FC = () => {
 
     const updated = [rule, ...redirects];
     setRedirects(updated);
-    updateRedirects(updated);
-
-    setNewFrom('');
-    setNewTo('');
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 3000);
+    try {
+      await updateRedirects(updated);
+      setNewFrom('');
+      setNewTo('');
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (err: any) {
+      alert('Failed to save redirect to database: ' + (err.message || 'Error'));
+    }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     const updated = redirects.filter(r => r.id !== id);
     setRedirects(updated);
-    updateRedirects(updated);
+    try {
+      await updateRedirects(updated);
+    } catch (err: any) {
+      alert('Failed to delete redirect: ' + (err.message || 'Error'));
+    }
   };
 
-  const handleToggle = (id: string) => {
+  const handleToggle = async (id: string) => {
     const updated = redirects.map(r => (r.id === id ? { ...r, isActive: !r.isActive } : r));
     setRedirects(updated);
-    updateRedirects(updated);
+    try {
+      await updateRedirects(updated);
+    } catch (err: any) {
+      alert('Failed to update redirect: ' + (err.message || 'Error'));
+    }
   };
 
   return (

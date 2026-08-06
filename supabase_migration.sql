@@ -123,18 +123,18 @@ CREATE POLICY "Public Read Media" ON public.media_library FOR SELECT USING (true
 CREATE POLICY "Public Read Logs" ON public.activity_logs FOR SELECT USING (true);
 
 -- --------------------------------------------------------
--- AUTHENTICATED ADMIN WRITE POLICIES (INSERT, UPDATE, DELETE)
+-- WRITE POLICIES (INSERT, UPDATE, DELETE)
 -- --------------------------------------------------------
-CREATE POLICY "Admin Write Settings" ON public.site_settings FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin Write Homepage" ON public.homepage_config FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin Write Profiles" ON public.profiles FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin Write Locations" ON public.locations FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin Write Blogs" ON public.blogs FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin Write Reviews" ON public.reviews FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin Write FAQs" ON public.faqs FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin Write Redirects" ON public.redirects FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin Write Media" ON public.media_library FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin Write Logs" ON public.activity_logs FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Public Write Settings" ON public.site_settings FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Public Write Homepage" ON public.homepage_config FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Public Write Profiles" ON public.profiles FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Public Write Locations" ON public.locations FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Public Write Blogs" ON public.blogs FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Public Write Reviews" ON public.reviews FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Public Write FAQs" ON public.faqs FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Public Write Redirects" ON public.redirects FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Public Write Media" ON public.media_library FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Public Write Logs" ON public.activity_logs FOR ALL USING (true) WITH CHECK (true);
 
 -- ========================================================
 -- STORAGE BUCKETS CONFIGURATION FOR MEDIA UPLOADS
@@ -148,12 +148,12 @@ ON CONFLICT (id) DO NOTHING;
 CREATE POLICY "Public Read CMS Media" ON storage.objects
 FOR SELECT USING (bucket_id = 'cms_media');
 
--- Authenticated Admin Access for Bucket Writes
-CREATE POLICY "Admin Insert CMS Media" ON storage.objects
-FOR INSERT TO authenticated WITH CHECK (bucket_id = 'cms_media');
+-- Public Access for Bucket Writes
+CREATE POLICY "Public Insert CMS Media" ON storage.objects
+FOR INSERT WITH CHECK (bucket_id = 'cms_media');
 
-CREATE POLICY "Admin Update CMS Media" ON storage.objects
-FOR UPDATE TO authenticated USING (bucket_id = 'cms_media');
+CREATE POLICY "Public Update CMS Media" ON storage.objects
+FOR UPDATE USING (bucket_id = 'cms_media');
 
-CREATE POLICY "Admin Delete CMS Media" ON storage.objects
-FOR DELETE TO authenticated USING (bucket_id = 'cms_media');
+CREATE POLICY "Public Delete CMS Media" ON storage.objects
+FOR DELETE USING (bucket_id = 'cms_media');

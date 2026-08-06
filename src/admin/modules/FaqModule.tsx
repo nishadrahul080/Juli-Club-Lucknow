@@ -63,15 +63,19 @@ export const FaqModule: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleDeleteFaq = (id: string) => {
+  const handleDeleteFaq = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this FAQ?')) {
       const updated = faqs.filter(f => f.id !== id);
-      updateFAQs(updated);
-      showToast('FAQ deleted successfully');
+      try {
+        await updateFAQs(updated);
+        showToast('FAQ deleted successfully');
+      } catch (err: any) {
+        alert('Failed to delete FAQ: ' + (err.message || 'Error'));
+      }
     }
   };
 
-  const handleSaveFaq = (e: React.FormEvent) => {
+  const handleSaveFaq = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingFaq || !editingFaq.question || !editingFaq.answer) return;
 
@@ -79,15 +83,18 @@ export const FaqModule: React.FC = () => {
     let updatedList;
     if (exists) {
       updatedList = faqs.map(f => f.id === editingFaq.id ? editingFaq : f);
-      showToast('FAQ updated successfully');
     } else {
       updatedList = [...faqs, editingFaq];
-      showToast('New FAQ created successfully');
     }
 
-    updateFAQs(updatedList);
-    setIsModalOpen(false);
-    setEditingFaq(null);
+    try {
+      await updateFAQs(updatedList);
+      showToast(exists ? 'FAQ updated successfully' : 'New FAQ created successfully');
+      setIsModalOpen(false);
+      setEditingFaq(null);
+    } catch (err: any) {
+      alert('Failed to save FAQ to database: ' + (err.message || 'Error'));
+    }
   };
 
   // Generate structured FAQ JSON-LD schema

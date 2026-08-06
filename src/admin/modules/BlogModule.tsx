@@ -117,11 +117,15 @@ export const BlogModule: React.FC = () => {
     setIsEditorOpen(true);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this blog post?')) {
       const updated = blogs.filter(b => b.id !== id);
-      updateBlogs(updated as any);
-      showToast('Blog post deleted successfully');
+      try {
+        await updateBlogs(updated as any);
+        showToast('Blog post deleted successfully');
+      } catch (err: any) {
+        alert('Failed to delete blog post: ' + (err.message || 'Error'));
+      }
     }
   };
 
@@ -132,7 +136,7 @@ export const BlogModule: React.FC = () => {
     return `${minutes} min read`;
   };
 
-  const handleSaveBlog = (e: React.FormEvent) => {
+  const handleSaveBlog = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingBlog || !editingBlog.title) return;
 
@@ -177,10 +181,14 @@ export const BlogModule: React.FC = () => {
       newBlogs = [updatedBlog, ...blogs];
     }
 
-    updateBlogs(newBlogs as any);
-    setIsEditorOpen(false);
-    setEditingBlog(null);
-    showToast('Blog post saved successfully!');
+    try {
+      await updateBlogs(newBlogs as any);
+      setIsEditorOpen(false);
+      setEditingBlog(null);
+      showToast('Blog post saved successfully!');
+    } catch (err: any) {
+      alert('Failed to save blog post to database: ' + (err.message || 'Error'));
+    }
   };
 
   // Content formatting toolbar helpers

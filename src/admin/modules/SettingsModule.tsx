@@ -73,10 +73,15 @@ export const SettingsModule: React.FC = () => {
   };
 
   // Master Save Handler
-  const handleSaveSettings = (e: React.FormEvent) => {
+  const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateSettings(form);
-    showToast('Global Website Settings saved & synced successfully!');
+    try {
+      await updateSettings(form);
+      showToast('Global Website Settings saved & synced successfully!');
+    } catch (err: any) {
+      console.error('Save settings error:', err);
+      setErrorMsg('Failed to save settings to database: ' + (err.message || 'Unknown error'));
+    }
   };
 
   // Credentials Submit Handler

@@ -39,15 +39,19 @@ export const HomepageModule: React.FC = () => {
 
   const handleHeroSettingChange = (field: string, value: string) => {
     setHeroSettings(prev => ({ ...prev, [field]: value }));
-    updateSettings({ [field]: value });
   };
 
-  const handleSaveHomepage = (e?: React.FormEvent) => {
+  const handleSaveHomepage = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    updateHomepage(formData);
-    updateSettings(heroSettings);
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 3000);
+    try {
+      await updateHomepage(formData);
+      await updateSettings(heroSettings);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (err: any) {
+      console.error('Error saving homepage:', err);
+      alert('Failed to save homepage: ' + (err.message || 'Error communicating with database'));
+    }
   };
 
   return (

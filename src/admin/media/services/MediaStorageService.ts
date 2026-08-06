@@ -1,6 +1,7 @@
 import { MediaItem, MediaCategory, ImageDimensions, StorageConfig } from '../types';
 import { COMPANION_PROFILES } from '../../../data/mockData';
 import { INITIAL_BLOGS, DEFAULT_SETTINGS } from '../../../data/cmsStore';
+import { getSupabaseClient } from '../../../lib/supabaseClient';
 
 const STORAGE_KEY = 'juli_club_media_library_v1';
 const DB_NAME = 'JuliClubMediaDB';
@@ -491,6 +492,26 @@ export class MediaStorageService {
       } catch (err) {
         console.error('Critical storage save error:', err);
       }
+    }
+
+    const client = getSupabaseClient();
+    if (client) {
+      const rows = items.map(item => ({
+        id: item.id,
+        filename: item.filename,
+        url: item.url,
+        size: `${(item.fileSize / 1024).toFixed(1)} KB`,
+        type: item.mimeType,
+        created_at: item.uploadDate || new Date().toISOString()
+      }));
+      (async () => {
+        try {
+          const { error } = await client.from('media_library').upsert(rows, { onConflict: 'id' });
+          if (error) console.warn('[Supabase Media Sync Notice]:', error.message || error);
+        } catch (err) {
+          console.warn('[Supabase Media Sync Exception]:', err);
+        }
+      })();
     }
   }
 }

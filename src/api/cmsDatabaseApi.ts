@@ -13,13 +13,14 @@ import { reviewRepository } from '../repositories/review.repository';
 import { CMSData, SiteSettings, HomepageConfig, BlogPost, getCMSData, saveCMSData } from '../data/cmsStore';
 import { CompanionProfile, Review, LocationPageInfo, CMSSection, RedirectRule } from '../types';
 import { db } from '../db/database';
-import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
+import { getSupabaseClient } from '../lib/supabaseClient';
 
 export class CMSDatabaseApi {
   public async loadFullCMSData(): Promise<CMSData> {
     const localData = getCMSData();
+    const client = getSupabaseClient();
 
-    if (isSupabaseConfigured() && supabase) {
+    if (client) {
       try {
         console.log('[Supabase API] Fetching CMS data from Supabase Cloud...');
         const [
@@ -32,14 +33,14 @@ export class CMSDatabaseApi {
           reviewsRes,
           redirectsRes
         ] = await Promise.all([
-          supabase.from('site_settings').select('*'),
-          supabase.from('homepage_config').select('*').eq('id', 'main').single(),
-          supabase.from('profiles').select('*'),
-          supabase.from('locations').select('*'),
-          supabase.from('blogs').select('*'),
-          supabase.from('faqs').select('*').order('display_order', { ascending: true }),
-          supabase.from('reviews').select('*'),
-          supabase.from('redirects').select('*')
+          client.from('site_settings').select('*'),
+          client.from('homepage_config').select('*').eq('id', 'main').single(),
+          client.from('profiles').select('*'),
+          client.from('locations').select('*'),
+          client.from('blogs').select('*'),
+          client.from('faqs').select('*').order('display_order', { ascending: true }),
+          client.from('reviews').select('*'),
+          client.from('redirects').select('*')
         ]);
 
         let settings = localData.settings;
@@ -50,32 +51,37 @@ export class CMSDatabaseApi {
           });
           settings = { ...localData.settings, ...fetchedMap };
         } else {
-          // Auto-seed site settings
+          // Seed site_settings to Supabase
+          console.log('[Supabase API] Seeding site_settings into empty Supabase database...');
           const upsertRows = Object.entries(localData.settings).map(([key, value]) => ({
             key,
             value,
             updated_at: new Date().toISOString()
           }));
-          await supabase.from('site_settings').upsert(upsertRows, { onConflict: 'key' }).catch(e => console.error('Seed error:', e));
+          const { error } = await client.from('site_settings').upsert(upsertRows, { onConflict: 'key' });
+          if (error) console.warn('[Supabase Sync Notice - site_settings]:', error.message || error);
         }
 
         let homepage = localData.homepage;
         if (homepageRes.data && homepageRes.data.data) {
           homepage = { ...localData.homepage, ...homepageRes.data.data };
         } else {
-          // Auto-seed homepage config
-          await supabase.from('homepage_config').upsert({
+          // Seed homepage_config to Supabase
+          console.log('[Supabase API] Seeding homepage_config into empty Supabase database...');
+          const { error } = await client.from('homepage_config').upsert({
             id: 'main',
             data: localData.homepage,
             updated_at: new Date().toISOString()
-          }, { onConflict: 'id' }).catch(e => console.error('Seed error:', e));
+          }, { onConflict: 'id' });
+          if (error) console.warn('[Supabase Sync Notice - homepage_config]:', error.message || error);
         }
 
         let profiles = localData.profiles;
         if (profilesRes.data && profilesRes.data.length > 0) {
           profiles = profilesRes.data.map(r => r.data || r);
         } else if (localData.profiles && localData.profiles.length > 0) {
-          // Auto-seed profiles
+          // Seed profiles to Supabase
+          console.log('[Supabase API] Seeding profiles into empty Supabase database...');
           const rows = localData.profiles.map(p => ({
             id: p.id,
             slug: p.slug || p.id,
@@ -83,7 +89,8 @@ export class CMSDatabaseApi {
             data: p,
             updated_at: new Date().toISOString()
           }));
-          await supabase.from('profiles').upsert(rows, { onConflict: 'id' }).catch(e => console.error('Seed error:', e));
+          const { error } = await client.from('profiles').upsert(rows, { onConflict: 'id' });
+          if (error) console.warn('[Supabase Sync Notice - profiles]:', error.message || error);
         }
 
         let locations = localData.locations;
@@ -99,21 +106,24 @@ export class CMSDatabaseApi {
             locations = locMap;
           }
         } else if (localData.locations && Object.keys(localData.locations).length > 0) {
-          // Auto-seed locations
+          // Seed locations to Supabase
+          console.log('[Supabase API] Seeding locations into empty Supabase database...');
           const rows = Object.values(localData.locations).map(loc => ({
             slug: loc.slug,
             name: loc.areaName,
             data: loc,
             updated_at: new Date().toISOString()
           }));
-          await supabase.from('locations').upsert(rows, { onConflict: 'slug' }).catch(e => console.error('Seed error:', e));
+          const { error } = await client.from('locations').upsert(rows, { onConflict: 'slug' });
+          if (error) console.warn('[Supabase Sync Notice - locations]:', error.message || error);
         }
 
         let blogs = localData.blogs;
         if (blogsRes.data && blogsRes.data.length > 0) {
           blogs = blogsRes.data.map(r => r.data || r);
         } else if (localData.blogs && localData.blogs.length > 0) {
-          // Auto-seed blogs
+          // Seed blogs to Supabase
+          console.log('[Supabase API] Seeding blogs into empty Supabase database...');
           const rows = localData.blogs.map(b => ({
             id: b.id,
             slug: b.slug,
@@ -121,14 +131,16 @@ export class CMSDatabaseApi {
             data: b,
             updated_at: new Date().toISOString()
           }));
-          await supabase.from('blogs').upsert(rows, { onConflict: 'id' }).catch(e => console.error('Seed error:', e));
+          const { error } = await client.from('blogs').upsert(rows, { onConflict: 'id' });
+          if (error) console.warn('[Supabase Sync Notice - blogs]:', error.message || error);
         }
 
         let faqs = localData.faqs;
         if (faqsRes.data && faqsRes.data.length > 0) {
           faqs = faqsRes.data.map(r => r.data || r);
         } else if (localData.faqs && localData.faqs.length > 0) {
-          // Auto-seed FAQs
+          // Seed FAQs to Supabase
+          console.log('[Supabase API] Seeding faqs into empty Supabase database...');
           const rows = localData.faqs.map((f, idx) => ({
             id: f.id || `faq-${idx}`,
             question: f.question,
@@ -138,40 +150,46 @@ export class CMSDatabaseApi {
             data: f,
             updated_at: new Date().toISOString()
           }));
-          await supabase.from('faqs').upsert(rows, { onConflict: 'id' }).catch(e => console.error('Seed error:', e));
+          const { error } = await client.from('faqs').upsert(rows, { onConflict: 'id' });
+          if (error) console.warn('[Supabase Sync Notice - faqs]:', error.message || error);
         }
 
         let reviews = localData.reviews;
         if (reviewsRes.data && reviewsRes.data.length > 0) {
           reviews = reviewsRes.data.map(r => r.data || r);
         } else if (localData.reviews && localData.reviews.length > 0) {
-          // Auto-seed reviews
+          // Seed reviews to Supabase
+          console.log('[Supabase API] Seeding reviews into empty Supabase database...');
           const rows = localData.reviews.map(r => ({
             id: r.id || `rev-${Date.now()}`,
             data: r,
             created_at: new Date().toISOString()
           }));
-          await supabase.from('reviews').upsert(rows, { onConflict: 'id' }).catch(e => console.error('Seed error:', e));
+          const { error } = await client.from('reviews').upsert(rows, { onConflict: 'id' });
+          if (error) console.warn('[Supabase Sync Notice - reviews]:', error.message || error);
         }
 
         let redirects = localData.redirects;
         if (redirectsRes.data && redirectsRes.data.length > 0) {
           redirects = redirectsRes.data.map(r => ({
             id: r.id,
-            from: r.from_path,
-            to: r.to_path,
-            type: r.type
+            fromSlug: r.from_path || (r as any).from || '',
+            toTarget: r.to_path || (r as any).to || '',
+            statusCode: (r.type || 301) as any,
+            isActive: true
           }));
         } else if (localData.redirects && localData.redirects.length > 0) {
-          // Auto-seed redirects
-          const rows = localData.redirects.map((r, idx) => ({
+          // Seed redirects to Supabase
+          console.log('[Supabase API] Seeding redirects into empty Supabase database...');
+          const rows = localData.redirects.map((r: any, idx) => ({
             id: r.id || `red-${idx}`,
-            from_path: r.from,
-            to_path: r.to,
-            type: r.type || 301,
+            from_path: r.fromSlug || r.from || '',
+            to_path: r.toTarget || r.to || '',
+            type: r.statusCode || r.type || 301,
             created_at: new Date().toISOString()
           }));
-          await supabase.from('redirects').upsert(rows, { onConflict: 'id' }).catch(e => console.error('Seed error:', e));
+          const { error } = await client.from('redirects').upsert(rows, { onConflict: 'id' });
+          if (error) console.warn('[Supabase Sync Notice - redirects]:', error.message || error);
         }
 
         const fullData: CMSData = {
@@ -190,6 +208,8 @@ export class CMSDatabaseApi {
       } catch (err) {
         console.warn('[Supabase API] Error reading from Supabase, falling back to local store:', err);
       }
+    } else {
+      console.warn('[Supabase API] Supabase is not configured or client is null.');
     }
 
     // Local Repository Fallback
@@ -221,17 +241,24 @@ export class CMSDatabaseApi {
 
   public async updateSettings(newSettings: Partial<SiteSettings>): Promise<SiteSettings> {
     const updatedLocal = await settingsService.updateSettings(newSettings);
+    const client = getSupabaseClient();
 
-    if (isSupabaseConfigured() && supabase) {
+    if (client) {
       try {
         const upsertRows = Object.entries(newSettings).map(([key, value]) => ({
           key,
           value,
           updated_at: new Date().toISOString()
         }));
-        await supabase.from('site_settings').upsert(upsertRows, { onConflict: 'key' });
+        const { error } = await client.from('site_settings').upsert(upsertRows, { onConflict: 'key' });
+        if (error) {
+          console.error('[Supabase Save Failure - site_settings]:', error);
+          throw new Error(`Supabase write failed: ${error.message}`);
+        }
+        console.log('[Supabase API] Successfully updated site_settings in Supabase!');
       } catch (err) {
         console.error('[Supabase API] Error updating settings:', err);
+        throw err;
       }
     }
 
@@ -240,16 +267,23 @@ export class CMSDatabaseApi {
 
   public async updateHomepage(newHomepage: Partial<HomepageConfig>): Promise<HomepageConfig> {
     const updatedLocal = await homepageService.updateHomepageConfig(newHomepage);
+    const client = getSupabaseClient();
 
-    if (isSupabaseConfigured() && supabase) {
+    if (client) {
       try {
-        await supabase.from('homepage_config').upsert({
+        const { error } = await client.from('homepage_config').upsert({
           id: 'main',
           data: updatedLocal,
           updated_at: new Date().toISOString()
         }, { onConflict: 'id' });
+        if (error) {
+          console.error('[Supabase Save Failure - homepage_config]:', error);
+          throw new Error(`Supabase write failed: ${error.message}`);
+        }
+        console.log('[Supabase API] Successfully updated homepage_config in Supabase!');
       } catch (err) {
         console.error('[Supabase API] Error updating homepage:', err);
+        throw err;
       }
     }
 
@@ -258,17 +292,24 @@ export class CMSDatabaseApi {
 
   public async updateHomepageSections(sections: CMSSection[]): Promise<CMSSection[]> {
     const updatedLocal = await homepageService.updateSections(sections);
+    const client = getSupabaseClient();
 
-    if (isSupabaseConfigured() && supabase) {
+    if (client) {
       try {
         const fullHomepage = await homepageService.getHomepageConfig();
-        await supabase.from('homepage_config').upsert({
+        const { error } = await client.from('homepage_config').upsert({
           id: 'main',
           data: { ...fullHomepage, sections },
           updated_at: new Date().toISOString()
         }, { onConflict: 'id' });
+        if (error) {
+          console.error('[Supabase Save Failure - homepage_sections]:', error);
+          throw new Error(`Supabase write failed: ${error.message}`);
+        }
+        console.log('[Supabase API] Successfully updated homepage sections in Supabase!');
       } catch (err) {
         console.error('[Supabase API] Error updating homepage sections:', err);
+        throw err;
       }
     }
 
@@ -289,7 +330,8 @@ export class CMSDatabaseApi {
       return updated.data;
     });
 
-    if (isSupabaseConfigured() && supabase) {
+    const client = getSupabaseClient();
+    if (client) {
       try {
         const rows = profiles.map(p => ({
           id: p.id,
@@ -298,9 +340,15 @@ export class CMSDatabaseApi {
           data: p,
           updated_at: new Date().toISOString()
         }));
-        await supabase.from('profiles').upsert(rows, { onConflict: 'id' });
+        const { error } = await client.from('profiles').upsert(rows, { onConflict: 'id' });
+        if (error) {
+          console.error('[Supabase Save Failure - profiles]:', error);
+          throw new Error(`Supabase write failed: ${error.message}`);
+        }
+        console.log('[Supabase API] Successfully updated profiles in Supabase!');
       } catch (err) {
         console.error('[Supabase API] Error updating profiles:', err);
+        throw err;
       }
     }
 
@@ -324,16 +372,23 @@ export class CMSDatabaseApi {
       return res.data;
     });
 
-    if (isSupabaseConfigured() && supabase) {
+    const client = getSupabaseClient();
+    if (client) {
       try {
         const rows = reviews.map(r => ({
           id: r.id || `rev-${Date.now()}`,
           data: r,
           created_at: new Date().toISOString()
         }));
-        await supabase.from('reviews').upsert(rows, { onConflict: 'id' });
+        const { error } = await client.from('reviews').upsert(rows, { onConflict: 'id' });
+        if (error) {
+          console.error('[Supabase Save Failure - reviews]:', error);
+          throw new Error(`Supabase write failed: ${error.message}`);
+        }
+        console.log('[Supabase API] Successfully updated reviews in Supabase!');
       } catch (err) {
         console.error('[Supabase API] Error updating reviews:', err);
+        throw err;
       }
     }
 
@@ -355,7 +410,8 @@ export class CMSDatabaseApi {
       return res.data;
     });
 
-    if (isSupabaseConfigured() && supabase) {
+    const client = getSupabaseClient();
+    if (client) {
       try {
         const rows = faqs.map((f, idx) => ({
           id: f.id || `faq-${idx}`,
@@ -366,9 +422,15 @@ export class CMSDatabaseApi {
           data: f,
           updated_at: new Date().toISOString()
         }));
-        await supabase.from('faqs').upsert(rows, { onConflict: 'id' });
+        const { error } = await client.from('faqs').upsert(rows, { onConflict: 'id' });
+        if (error) {
+          console.error('[Supabase Save Failure - faqs]:', error);
+          throw new Error(`Supabase write failed: ${error.message}`);
+        }
+        console.log('[Supabase API] Successfully updated faqs in Supabase!');
       } catch (err) {
         console.error('[Supabase API] Error updating FAQs:', err);
+        throw err;
       }
     }
 
@@ -391,7 +453,8 @@ export class CMSDatabaseApi {
       return resMap;
     });
 
-    if (isSupabaseConfigured() && supabase) {
+    const client = getSupabaseClient();
+    if (client) {
       try {
         const rows = Object.values(locationsMap).map(loc => ({
           slug: loc.slug,
@@ -399,9 +462,15 @@ export class CMSDatabaseApi {
           data: loc,
           updated_at: new Date().toISOString()
         }));
-        await supabase.from('locations').upsert(rows, { onConflict: 'slug' });
+        const { error } = await client.from('locations').upsert(rows, { onConflict: 'slug' });
+        if (error) {
+          console.error('[Supabase Save Failure - locations]:', error);
+          throw new Error(`Supabase write failed: ${error.message}`);
+        }
+        console.log('[Supabase API] Successfully updated locations in Supabase!');
       } catch (err) {
         console.error('[Supabase API] Error updating locations:', err);
+        throw err;
       }
     }
 
@@ -410,17 +479,24 @@ export class CMSDatabaseApi {
 
   public async addLocationPage(location: LocationPageInfo): Promise<LocationPageInfo> {
     const localRes = await locationService.createLocationPage(location as any);
+    const client = getSupabaseClient();
 
-    if (isSupabaseConfigured() && supabase) {
+    if (client) {
       try {
-        await supabase.from('locations').upsert({
+        const { error } = await client.from('locations').upsert({
           slug: location.slug,
           name: location.areaName,
           data: location,
           updated_at: new Date().toISOString()
         }, { onConflict: 'slug' });
+        if (error) {
+          console.error('[Supabase Save Failure - add location]:', error);
+          throw new Error(`Supabase write failed: ${error.message}`);
+        }
+        console.log('[Supabase API] Successfully added location to Supabase!');
       } catch (err) {
         console.error('[Supabase API] Error adding location page:', err);
+        throw err;
       }
     }
 
@@ -429,12 +505,19 @@ export class CMSDatabaseApi {
 
   public async deleteLocationPage(slug: string): Promise<boolean> {
     const localRes = await locationService.deleteLocationPage(slug);
+    const client = getSupabaseClient();
 
-    if (isSupabaseConfigured() && supabase) {
+    if (client) {
       try {
-        await supabase.from('locations').delete().eq('slug', slug);
+        const { error } = await client.from('locations').delete().eq('slug', slug);
+        if (error) {
+          console.error('[Supabase Save Failure - delete location]:', error);
+          throw new Error(`Supabase write failed: ${error.message}`);
+        }
+        console.log('[Supabase API] Successfully deleted location from Supabase!');
       } catch (err) {
         console.error('[Supabase API] Error deleting location page:', err);
+        throw err;
       }
     }
 
@@ -443,19 +526,26 @@ export class CMSDatabaseApi {
 
   public async updateRedirects(redirects: RedirectRule[]): Promise<RedirectRule[]> {
     const localRes = await redirectService.updateRedirects(redirects);
+    const client = getSupabaseClient();
 
-    if (isSupabaseConfigured() && supabase) {
+    if (client) {
       try {
-        const rows = redirects.map((r, idx) => ({
+        const rows = redirects.map((r: any, idx) => ({
           id: r.id || `red-${idx}`,
-          from_path: r.from,
-          to_path: r.to,
-          type: r.type || 301,
+          from_path: r.fromSlug || r.from || '',
+          to_path: r.toTarget || r.to || '',
+          type: r.statusCode || r.type || 301,
           created_at: new Date().toISOString()
         }));
-        await supabase.from('redirects').upsert(rows, { onConflict: 'id' });
+        const { error } = await client.from('redirects').upsert(rows, { onConflict: 'id' });
+        if (error) {
+          console.error('[Supabase Save Failure - redirects]:', error);
+          throw new Error(`Supabase write failed: ${error.message}`);
+        }
+        console.log('[Supabase API] Successfully updated redirects in Supabase!');
       } catch (err) {
         console.error('[Supabase API] Error updating redirects:', err);
+        throw err;
       }
     }
 
@@ -475,7 +565,8 @@ export class CMSDatabaseApi {
       return blogService.getBlogs();
     });
 
-    if (isSupabaseConfigured() && supabase) {
+    const client = getSupabaseClient();
+    if (client) {
       try {
         const rows = blogs.map(b => ({
           id: b.id,
@@ -484,9 +575,15 @@ export class CMSDatabaseApi {
           data: b,
           updated_at: new Date().toISOString()
         }));
-        await supabase.from('blogs').upsert(rows, { onConflict: 'id' });
+        const { error } = await client.from('blogs').upsert(rows, { onConflict: 'id' });
+        if (error) {
+          console.error('[Supabase Save Failure - blogs]:', error);
+          throw new Error(`Supabase write failed: ${error.message}`);
+        }
+        console.log('[Supabase API] Successfully updated blogs in Supabase!');
       } catch (err) {
         console.error('[Supabase API] Error updating blogs:', err);
+        throw err;
       }
     }
 
@@ -494,22 +591,23 @@ export class CMSDatabaseApi {
   }
 
   public async uploadMediaAsset(file: File): Promise<{ url: string; filename: string }> {
-    if (isSupabaseConfigured() && supabase) {
+    const client = getSupabaseClient();
+    if (client) {
       const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-      const { data, error } = await supabase.storage.from('cms_media').upload(fileName, file, {
+      const { data, error } = await client.storage.from('cms_media').upload(fileName, file, {
         cacheControl: '3600',
         upsert: true
       });
 
       if (error) {
-        console.error('[Supabase Storage] Upload error:', error);
-        throw error;
+        console.error('[Supabase Storage Upload Error]:', error);
+        throw new Error(`Storage upload failed: ${error.message}`);
       }
 
-      const { data: publicUrlData } = supabase.storage.from('cms_media').getPublicUrl(data.path);
+      const { data: publicUrlData } = client.storage.from('cms_media').getPublicUrl(data.path);
       const url = publicUrlData.publicUrl;
 
-      await supabase.from('media_library').insert({
+      const { error: dbError } = await client.from('media_library').insert({
         id: `med-${Date.now()}`,
         filename: file.name,
         url,
@@ -517,6 +615,10 @@ export class CMSDatabaseApi {
         type: file.type,
         created_at: new Date().toISOString()
       });
+
+      if (dbError) {
+        console.error('[Supabase Media Library Insert Error]:', dbError);
+      }
 
       return { url, filename: file.name };
     }
@@ -526,4 +628,3 @@ export class CMSDatabaseApi {
 }
 
 export const cmsDatabaseApi = new CMSDatabaseApi();
-

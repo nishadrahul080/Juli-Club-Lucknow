@@ -74,21 +74,29 @@ export const ReviewsModule: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleDeleteReview = (id: string) => {
+  const handleDeleteReview = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this review?')) {
       const updated = reviews.filter(r => r.id !== id);
-      updateReviews(updated);
-      showToast('Review deleted successfully');
+      try {
+        await updateReviews(updated);
+        showToast('Review deleted successfully');
+      } catch (err: any) {
+        alert('Failed to delete review: ' + (err.message || 'Error'));
+      }
     }
   };
 
-  const handleToggleVerified = (id: string) => {
+  const handleToggleVerified = async (id: string) => {
     const updated = reviews.map(r => r.id === id ? { ...r, verifiedBooking: !r.verifiedBooking } : r);
-    updateReviews(updated);
-    showToast('Verified booking status updated');
+    try {
+      await updateReviews(updated);
+      showToast('Verified booking status updated');
+    } catch (err: any) {
+      alert('Failed to update review: ' + (err.message || 'Error'));
+    }
   };
 
-  const handleSaveReview = (e: React.FormEvent) => {
+  const handleSaveReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingReview || !editingReview.clientName || !editingReview.comment) return;
 
@@ -98,15 +106,18 @@ export const ReviewsModule: React.FC = () => {
     let updatedList: Review[];
     if (exists) {
       updatedList = reviews.map(r => r.id === newRev.id ? newRev : r);
-      showToast('Review updated successfully');
     } else {
       updatedList = [newRev, ...reviews];
-      showToast('New review published successfully');
     }
 
-    updateReviews(updatedList);
-    setIsModalOpen(false);
-    setEditingReview(null);
+    try {
+      await updateReviews(updatedList);
+      showToast(exists ? 'Review updated successfully' : 'New review published successfully');
+      setIsModalOpen(false);
+      setEditingReview(null);
+    } catch (err: any) {
+      alert('Failed to save review to database: ' + (err.message || 'Error'));
+    }
   };
 
   return (
