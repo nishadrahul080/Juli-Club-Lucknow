@@ -27,6 +27,9 @@ jobs:
         run: npm install
 
       - name: 🏗️ Build Production Static Bundle
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: npm run build
 
       - name: 🚀 Deploy to Hostinger via FTP (Sync to lucknow/)
